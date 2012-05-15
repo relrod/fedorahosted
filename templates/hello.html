@@ -1,0 +1,42 @@
+{% extends "global.html" %}
+{% block content %}
+<h1>Fedora Hosted Project Request</h1>
+<p>
+Hi there and welcome to Fedora Hosted. To request space for your open source
+project, please fill out the form below, in its entirety.
+</p>
+
+<form action="#" method="post">
+  <fieldset>
+    <legend>Fedora Hosted - New Project Request</legend>
+    <div class="fhp-field">
+      <label for="project_name">Project Name</label>
+      <input type="text" id="project_name" name="project_name" />
+    </div>
+    <div class="fhp-field">
+      <label for="project_description">Short Description</label>
+      <input type="text" id="project_description" name="project_description" />
+    </div>
+    <div class="fhp-field">
+      <label for="project_scm">SCM Type</label>
+      <select name="project_scm" id="project_scm">
+        <option value="git">Git</option>
+        <option value="svn">Subversion</option>
+        <option value="hg">Mercurial</option>
+      </select>
+    </div>
+    <div class="fhp-field">
+      <label for="project_owner">Project Owner</label>
+      <input type="text" id="project_owner" name="project_owner" />
+    </div>
+    <div class="fhp-field">
+      <label for="project_mailinglists">Mailing Lists (must start with "PROJECTNAME-")</label>
+      <input type="text" id="project_mailinglists" name="project_mailinglists" />
+    </div>
+    <div class="fhp-field">
+      <label for="project_commitlist">Send commit notices to a list? (must be one of the above lists)</label>
+      <input type="text" id="project_commitlist" name="project_commitlist" />
+    </div>
+  </fieldset>
+</form>
+{% endblock %}
