@@ -1,0 +1,48 @@
+{% extends "global.html" %}
+{% block content %}
+<h1>Pending Fedora Hosted Requests</h1>
+<p>
+  This page is just an overview of requests waiting to be processed.
+  Typically, only admins will care about this page.
+</p>
+<hr />
+{% for request in requests %}
+<h2>{{ request.pretty_name }}</h2>
+<table>
+  <tr>
+    <td>Name</td>
+    <td>{{ request.name }}</td>
+  </tr>
+  <tr>
+    <td>Description</td>
+    <td>{{ request.description }}</td>
+  </tr>
+  <tr>
+    <td>owner</td>
+    <td>{{ request.owner }}</td>
+  </tr>
+  <tr>
+    <td>SCM</td>
+    <td>{{ request.scm }}</td>
+  </tr>
+  <tr>
+    <td>Wants Trac?</td>
+    <td>{{ request.trac }}</td>
+  </tr>
+  <tr>
+    <td>Mailing Lists</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>Send Commits To</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><b>Process With</b></td>
+    <td><code>[admin@hosted ~]$ fedorahosted-process --noop -p {{ request.id }}</code></td>
+  </tr>
+</table>
+<hr />
+{% endfor %}
+{% endblock %}
+  
