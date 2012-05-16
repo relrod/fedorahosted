@@ -36,6 +36,16 @@ This application stores, manages, and processes Fedora Hosted requests.
 * flask-scss (I just packaged this, needs to be submitted for review)
   * python-pyscss (Need to get this reviewed too)
 
+# Deploying
+
+To set up the app, copy the included `fedorahosted_config.py.dist` to
+`fedorahosted_config.py` and edit its values appropriately.
+
+Then, look to [Flask's Documentation](http://flask.pocoo.org/docs/deploying/)
+for figuring out the best way to deploy. In Fedora Infrastructure, we will
+likely use mod_wsgi, simply for the fact that we already have infrastructure
+built up around it, and know how to support it.
+
 # Hacking/Contributing
 
 Please have read and signed the
