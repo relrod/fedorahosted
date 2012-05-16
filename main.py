@@ -101,14 +101,17 @@ def mark_complete():
     """
     fas = fedora.client.AccountSystem(username=FAS_USERNAME,
                                       password=FAS_PASSWORD)
-    try:
-        group = fas.group_by_name(request.args.get('group'))
-    except:
-        return jsonify(error="No such group: %s" % request.args.get('group'))
     hosted_request = HostedRequest.query.filter_by(id=request.args.get('id'))
     if hosted_request.count() > 0:
         if hosted_request[0].completed == True:
             return jsonify(error="Request was already marked as completed.")
+
+        group_name = hosted_request[0].scm + hosted_request[0].name
+        try:
+            group = fas.group_by_name(group_name)
+        except:
+            return jsonify(error="No such group: " + group_name)
+
         hosted_request[0].completed = True
         db.session.commit()
         return jsonify(success="Request marked as completed.")
