@@ -68,7 +68,7 @@ def hello():
         db.session.add(hosted_request)
         db.session.commit()
         return render_template('completed.html')
-    return render_template('hello.html', form=form)
+    return render_template('index.html', form=form)
 
 
 @app.route('/pending')
