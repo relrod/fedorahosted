@@ -4,7 +4,7 @@
 # GPLv2+
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
-    render_template, flash
+    render_template, flash, jsonify
 from flaskext.flask_scss import Scss
 from flask.ext.sqlalchemy import SQLAlchemy
 from wtforms import Form, BooleanField, TextField, SelectField, validators
@@ -73,6 +73,18 @@ def hello():
 def pending():
     requests = HostedRequest.query.filter_by(completed=False)
     return render_template('pending.html', requests=requests)
+
+@app.route('/getrequest')
+def get_request():
+    """Returns a JSON representation of a Fedora Hosted Request."""
+    hosted_request = HostedRequest.query.filter_by(id=request.args.get('id'))
+    if hosted_request.count() > 0:
+        d = {}
+        for col in hosted_request[0].__table__.columns.keys():
+            d[col] = getattr(hosted_request[0], col)
+        return jsonify(d)
+    else:
+        return jsonify(error="No hosted request with that ID could be found.")
 
 if __name__ == "__main__":
     app.run()
