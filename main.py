@@ -5,7 +5,6 @@
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash, jsonify
-from flaskext.flask_scss import Scss
 from flask.ext.sqlalchemy import SQLAlchemy
 from wtforms import Form, BooleanField, TextField, SelectField, validators
 import fedora.client
@@ -14,7 +13,6 @@ from fedorahosted_config import *
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-Scss(app)
 db = SQLAlchemy(app)
 
 

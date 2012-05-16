@@ -5,5 +5,4 @@
 *.swo
 *.pyc
 *.pyo
-static/
 fedorahosted_config.py

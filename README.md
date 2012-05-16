@@ -33,8 +33,6 @@ This application stores, manages, and processes Fedora Hosted requests.
 * python-flask
 * python-flask-sqlalchemy
 * python-flask-wtf
-* flask-scss (I just packaged this, needs to be submitted for review)
-  * python-pyscss (Need to get this reviewed too)
 
 # Deploying
 
