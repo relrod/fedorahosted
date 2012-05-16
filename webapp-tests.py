@@ -89,5 +89,50 @@ class FedoraHostedTestCase(unittest.TestCase):
             print str(e)
         assert okay
 
+    def test_mark_completed(self):
+        self.app.post('/', data=dict(
+                project_name="testproject",
+                project_pretty_name="A test project",
+                project_description="This project does X and Y and Z too!",
+                project_owner="testaccount",
+                project_scm="git",
+                project_trac=True), follow_redirects=True)
+        completed = self.app.get('/mark-completed?group=gittestproject&id=1')
+        parsed_json = json.loads(completed.data)
+        assert parsed_json['success'] == "Request marked as completed."
+
+    def test_already_marked_completed(self):
+        self.app.post('/', data=dict(
+                project_name="testproject",
+                project_pretty_name="A test project",
+                project_description="This project does X and Y and Z too!",
+                project_owner="testaccount",
+                project_scm="git",
+                project_trac=True), follow_redirects=True)
+        completed = self.app.get('/mark-completed?group=gittestproject&id=1')
+        completed2 = self.app.get('/mark-completed?group=gittestproject&id=1')
+        parsed_json = json.loads(completed2.data)
+        assert parsed_json['error'] == \
+            "This request was already marked as completed."
+
+    def test_mark_completed_invalid_group(self):
+        self.app.post('/', data=dict(
+                project_name="testproject",
+                project_pretty_name="A test project",
+                project_description="This project does X and Y and Z too!",
+                project_owner="testaccount",
+                project_scm="git",
+                project_trac=True), follow_redirects=True)
+        completed = self.app.get('/mark-completed?group=nonexistent_group&id=1')
+        parsed_json = json.loads(completed.data)
+        assert parsed_json['error'] == "No such group: nonexistent_group"
+
+    def test_mark_completed_invalid_id(self):
+        completed = self.app.get('/mark-completed?group=gittestproject&id=1234')
+        parsed_json = json.loads(completed.data)
+        assert parsed_json['error'] == \
+            "No hosted request with that ID could be found."
+        
+
 if __name__ == '__main__':
     unittest.main()
