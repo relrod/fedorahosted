@@ -14,7 +14,6 @@ SECRET_KEY = 'MySecretKeyThatShouldBeChangedSoChangeItPleaseKTHX!!11111eleven'
 # Self explainatory.
 SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
 
-# These are used to create FAS groups for projects, via python-fedora.
-# So, logically, the user must have permissions to create a group.
+# This is only used to check of a group exists -- a readonly user works fine.
 FAS_USERNAME = 'someuser'
 FAS_PASSWORD = 'SomeP4ssw0rd!!!'
