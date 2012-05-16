@@ -35,6 +35,7 @@ if args.noop:
 if args.REQUEST_ID:
     processor_username = raw_input("FAS username: ")
     processor_password = getpass.getpass("FAS password: ")
-    request = urllib2.urlopen(args.SERVER + '/getrequest?id=' + args.REQUEST_ID)
-    request_json = json.loads(request.read())
-    print request_json
+    request = urllib2.urlopen(args.SERVER + '/getrequest?id=' + \
+                                  args.REQUEST_ID)
+    project = json.loads(request.read())
+    print project

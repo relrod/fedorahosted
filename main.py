@@ -17,6 +17,7 @@ app.config.from_object(__name__)
 Scss(app)
 db = SQLAlchemy(app)
 
+
 # TODO: Move these out to their own file.
 class MailingList(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -28,6 +29,7 @@ class MailingList(db.Model):
                               backref=db.backref('mailing_lists',
                                                  lazy='dynamic'))
 
+
 class HostedRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), unique=True)
@@ -35,8 +37,9 @@ class HostedRequest(db.Model):
     description = db.Column(db.String(255))
     scm = db.Column(db.String(10))
     trac = db.Column(db.Boolean)
-    owner = db.Column(db.String(32)) # 32 is the max username length in FAS
+    owner = db.Column(db.String(32))  # 32 is the max username length in FAS
     completed = db.Column(db.Boolean, default=False)
+
 
 class RequestForm(Form):
     project_name = TextField('Name (lowercase, alphanumeric only)',
@@ -52,26 +55,29 @@ class RequestForm(Form):
     project_trac = BooleanField('Trac Instance?')
     # TODO: Handle mailing lists
 
+
 @app.route('/', methods=['POST', 'GET'])
 def hello():
     form = RequestForm(request.form)
     if request.method == 'POST' and form.validate():
         hosted_request = HostedRequest(
-            name = form.project_name.data,
-            pretty_name = form.project_pretty_name.data,
-            description = form.project_description.data,
-            scm = form.project_scm.data,
-            trac = form.project_trac.data,
-            owner = form.project_owner.data)
+            name=form.project_name.data,
+            pretty_name=form.project_pretty_name.data,
+            description=form.project_description.data,
+            scm=form.project_scm.data,
+            trac=form.project_trac.data,
+            owner=form.project_owner.data)
         db.session.add(hosted_request)
         db.session.commit()
         return render_template('completed.html')
     return render_template('hello.html', form=form)
 
+
 @app.route('/pending')
 def pending():
     requests = HostedRequest.query.filter_by(completed=False)
     return render_template('pending.html', requests=requests)
+
 
 @app.route('/getrequest')
 def get_request():
@@ -85,6 +91,7 @@ def get_request():
     else:
         return jsonify(error="No hosted request with that ID could be found.")
 
+
 @app.route('/mark-completed')
 def mark_complete():
     """
@@ -92,7 +99,8 @@ def mark_complete():
     project complete if it does. We do this this way so that we don't have to
     send FAS credentials to this app.
     """
-    fas = fedora.client.AccountSystem(username=FAS_USERNAME, password=FAS_PASSWORD)
+    fas = fedora.client.AccountSystem(username=FAS_USERNAME,
+                                      password=FAS_PASSWORD)
     try:
         group = fas.group_by_name(request.args.get('group'))
     except:
@@ -100,7 +108,7 @@ def mark_complete():
     hosted_request = HostedRequest.query.filter_by(id=request.args.get('id'))
     if hosted_request.count() > 0:
         if hosted_request[0].completed == True:
-            return jsonify(error="This request was already marked as completed.")
+            return jsonify(error="Request was already marked as completed.")
         hosted_request[0].completed = True
         db.session.commit()
         return jsonify(success="Request marked as completed.")
