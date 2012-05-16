@@ -24,10 +24,12 @@ class FedoraHostedTestCase(unittest.TestCase):
         os.unlink(self.sqlite_tmp)
 
     def test_form_displays(self):
+        """Checks that the form on / displays."""
         root = self.app.get('/')
         assert 'Trac Instance?' in root.data
 
     def test_form_errors(self):
+        """Checks that the form errors when it should"""
         post = self.app.post('/', data=dict(
                 project_name="test",
                 project_pretty_name="A test project",
@@ -38,6 +40,7 @@ class FedoraHostedTestCase(unittest.TestCase):
         assert 'Field must be between 1 and' in post.data
 
     def test_form_success(self):
+        """Checks that requests can be made successfully."""
         post = self.app.post('/', data=dict(
                 project_name="test",
                 project_pretty_name="A test project",
@@ -48,6 +51,7 @@ class FedoraHostedTestCase(unittest.TestCase):
         assert 'Your request has been received.' in post.data
 
     def test_show_pending(self):
+        """Checks that a list of pending requests can be generated."""
         self.app.post('/', data=dict(
                 project_name="test",
                 project_pretty_name="A test project",
@@ -59,6 +63,7 @@ class FedoraHostedTestCase(unittest.TestCase):
         assert 'A test project' in pending.data
 
     def test_jsonify_existing(self):
+        """Checks that JSONifying existing requests works."""
         self.app.post('/', data=dict(
                 project_name="test",
                 project_pretty_name="A test project",
@@ -78,6 +83,7 @@ class FedoraHostedTestCase(unittest.TestCase):
         assert okay
 
     def test_jsonify_invalid_id(self):
+        """Checks that we properly handle JSONifying a nonexistent request."""
         hosting_request = self.app.get('/getrequest?id=1337')
         okay = False
         try:
@@ -90,6 +96,10 @@ class FedoraHostedTestCase(unittest.TestCase):
         assert okay
 
     def test_mark_completed(self):
+        """
+        Checks that we can mark completed a hosted request, if a FAS group
+        exists.
+        """
         self.app.post('/', data=dict(
                 project_name="testproject",
                 project_pretty_name="A test project",
@@ -102,6 +112,7 @@ class FedoraHostedTestCase(unittest.TestCase):
         assert parsed_json['success'] == "Request marked as completed."
 
     def test_already_marked_completed(self):
+        """Checks that we properly handle already-completed requests."""
         self.app.post('/', data=dict(
                 project_name="testproject",
                 project_pretty_name="A test project",
@@ -116,6 +127,10 @@ class FedoraHostedTestCase(unittest.TestCase):
             "This request was already marked as completed."
 
     def test_mark_completed_invalid_group(self):
+        """
+        Checks that we properly handle invalid giving /mark-completed an invalid
+        group.
+        """
         self.app.post('/', data=dict(
                 project_name="testproject",
                 project_pretty_name="A test project",
@@ -128,6 +143,9 @@ class FedoraHostedTestCase(unittest.TestCase):
         assert parsed_json['error'] == "No such group: nonexistent_group"
 
     def test_mark_completed_invalid_id(self):
+        """
+        Checks that we properly handle giving /mark-completed an invalid ID.
+        """
         completed = self.app.get('/mark-completed?group=gittestproject&id=1234')
         parsed_json = json.loads(completed.data)
         assert parsed_json['error'] == \
