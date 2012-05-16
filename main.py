@@ -19,8 +19,9 @@ db = SQLAlchemy(app)
 # TODO: Move these out to their own file.
 class MailingList(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    # TODO: What is the max length of ml title in mailman?
-    name = db.Column(db.String(150), unique=True)
+    # mailman does not enforce a hard limit. SMTP specifies 64-char limit
+    # on local-part, so use that.
+    name = db.Column(db.String(64), unique=True)
     request_id = db.Column(db.Integer, db.ForeignKey('hosted_request.id'))
     # TODO: wtf does this actually do?
     request = db.relationship('HostedRequest',
