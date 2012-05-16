@@ -27,6 +27,16 @@ This application stores, manages, and processes Fedora Hosted requests.
   * This prevents having to send FAS auth info to the web app.
   * If the group exists, the web app sets HostedRequest.completed = true
 
+# Dependencies (fedora packages)
+
+* python-fedora
+* python-flask
+* python-flask-sqlalchemy
+* python-flask-wtf
+* flask-scss (I just packaged this, needs to be submitted for review)
+  * python-pyscss (Need to get this reviewed too)
+
+  
 # License
 
 GPLv2+
