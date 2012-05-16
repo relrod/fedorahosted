@@ -8,10 +8,9 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 from flaskext.flask_scss import Scss
 from flask.ext.sqlalchemy import SQLAlchemy
 from wtforms import Form, BooleanField, TextField, SelectField, validators
+import fedora.client
 
-DEBUG = True
-SECRET_KEY = 'kF6BV5z6v5WVKmetjLhQqr2SffSKfrzFUaeIC19exox5b165ULsd7lR2Nb7q'
-SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
+from fedorahosted_config import *
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -85,6 +84,15 @@ def get_request():
         return jsonify(d)
     else:
         return jsonify(error="No hosted request with that ID could be found.")
+
+@app.route('/mark-completed')
+def mark_complete():
+    """
+    Checks to see if a group exists in FAS for the given project and marks the
+    project complete if it does. We do this this way so that we don't have to
+    send FAS credentials to this app.
+    """
+    
 
 if __name__ == "__main__":
     app.run()
