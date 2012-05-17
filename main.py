@@ -6,6 +6,7 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import class_mapper
 from wtforms import Form, BooleanField, TextField, SelectField, validators
 import fedora.client
 
@@ -38,6 +39,14 @@ class HostedRequest(db.Model):
     trac = db.Column(db.Boolean)
     owner = db.Column(db.String(32))  # 32 is the max username length in FAS
     completed = db.Column(db.Boolean, default=False)
+
+    def __json__(self):
+        """ Returns a dict representation of the object. """
+        attrs = [
+            prop.key for prop in class_mapper(HostedRequest).iterate_properties
+            if prop.key not in ['mailing_lists']
+        ]
+        return dict([(attr, getattr(self, attr)) for attr in attrs])
 
 
 class RequestForm(Form):
@@ -83,10 +92,7 @@ def get_request():
     """Returns a JSON representation of a Fedora Hosted Request."""
     hosted_request = HostedRequest.query.filter_by(id=request.args.get('id'))
     if hosted_request.count() > 0:
-        d = {}
-        for col in hosted_request[0].__table__.columns.keys():
-            d[col] = getattr(hosted_request[0], col)
-        return jsonify(d)
+        return jsonify(hosted_request.first().__json__())
     else:
         return jsonify(error="No hosted request with that ID could be found.")
 
