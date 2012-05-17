@@ -35,6 +35,7 @@ This application stores, manages, and processes Fedora Hosted requests.
 * python-flask-wtf
 * python-sqlalchemy
 * python-wtforms
+* python-fedmsg
 * python-pep8 (if you plan on hacking, not needed to deploy)
 
 # Deploying

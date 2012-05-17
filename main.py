@@ -9,12 +9,15 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import class_mapper
 from wtforms import Form, BooleanField, TextField, SelectField, validators
 import fedora.client
+import fedmsg
+
 
 from fedorahosted_config import *
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 db = SQLAlchemy(app)
+fedmsg.init(name="fedorahosted")
 
 
 # TODO: Move these out to their own file.
@@ -77,6 +80,10 @@ def hello():
             owner=form.project_owner.data)
         db.session.add(hosted_request)
         db.session.commit()
+        fedmsg.send_message(
+            modname='fedorahosted',
+            topic='request.create',
+            msg=hosted_request)
         return render_template('completed.html')
     return render_template('index.html', form=form)
 
@@ -119,6 +126,10 @@ def mark_complete():
 
         hosted_request[0].completed = True
         db.session.commit()
+        fedmsg.send_message(
+            modname='fedorahosted',
+            topic='request.complete',
+            msg=hosted_request[0])
         return jsonify(success="Request marked as completed.")
     else:
         return jsonify(error="No hosted request with that ID could be found.")
