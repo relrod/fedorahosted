@@ -6,3 +6,4 @@
 *.pyc
 *.pyo
 fedorahosted_config.py
+fenv/
