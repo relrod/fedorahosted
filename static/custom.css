@@ -4,3 +4,8 @@
     border: 1px solid #ccc;
     padding: 20px;
 }
+
+#head h1 a {
+    background: url('https://fedorahosted.org/web/static/images/fedora-hosted-banner.png') 0 50% no-repeat;
+    width: 200px;
+}
