@@ -38,6 +38,36 @@ This application stores, manages, and processes Fedora Hosted requests.
 * python-fedmsg
 * python-pep8 (if you plan on hacking, not needed to deploy)
 
+# Fedmsg-specific
+
+You probably don't want to merge this into master yet since python-fedmsg hasn't made it into fedora yet.
+
+If you want to try it out though, merge it into an experimental "fedmsg" branch.
+
+### Install Dependencies
+
+```
+sudo yum install python-virtualenv python-setuptools python-psutil openssl-devel python-devel python-zmq python-twisted
+virtualenv --system-site-packages fenv
+source fenv/bin/activate
+pip install -Iv WebOb==1.0.8
+pip install fedmsg
+```
+
+### Run `fedmsg-tail` and the unit tests at the same time
+
+In two different terminals, run:
+
+```
+source fenv/bin/activate
+fedmsg-tail --really-pretty
+```
+
+```
+source fenv/bin/activate
+python webapp-tests.py
+```
+
 # Deploying
 
 To set up the app, copy the included `fedorahosted_config.py.dist` to
