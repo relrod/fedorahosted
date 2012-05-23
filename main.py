@@ -7,6 +7,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm.properties import RelationshipProperty
 from wtforms import Form, BooleanField, TextField, SelectField, validators, \
     FieldList
 import fedora.client
@@ -18,8 +19,43 @@ app.config.from_object(__name__)
 db = SQLAlchemy(app)
 
 
+class JSONifiable(object):
+    """ A mixin for sqlalchemy models providing a .__json__ method. """
+
+    def __json__(self, recurse=True):
+        """ Returns a dict representation of the object.
+
+        Recursively evaluates .__json__() on its relationships.
+        """
+
+        properties = list(class_mapper(type(self)).iterate_properties)
+        relationships = [
+            p.key for p in properties if type(p) is RelationshipProperty
+        ]
+        attrs = [
+            p.key for p in properties if p.key not in relationships
+        ]
+
+        d = dict([(attr, getattr(self, attr)) for attr in attrs])
+
+        for attr in relationships:
+            d[attr] = self._expand(getattr(self, attr), recurse)
+
+        return d
+
+    def _expand(self, relation, recurse):
+        """ Return the __json__() or id of a sqlalchemy relationship. """
+        if hasattr(relation, 'all'):
+            return [self._expand(item, recurse) for item in relation.all()]
+
+        if recurse:
+            return relation.__json__(False)
+        else:
+            return relation.id
+
+
 # TODO: Move these out to their own file.
-class MailingList(db.Model):
+class MailingList(db.Model, JSONifiable):
     id = db.Column(db.Integer, primary_key=True)
     # mailman does not enforce a hard limit. SMTP specifies 64-char limit
     # on local-part, so use that.
@@ -31,7 +67,7 @@ class MailingList(db.Model):
                                                  lazy='dynamic'))
 
 
-class HostedRequest(db.Model):
+class HostedRequest(db.Model, JSONifiable):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), unique=True)
     pretty_name = db.Column(db.String(150), unique=True)
@@ -40,14 +76,6 @@ class HostedRequest(db.Model):
     trac = db.Column(db.Boolean)
     owner = db.Column(db.String(32))  # 32 is the max username length in FAS
     completed = db.Column(db.Boolean, default=False)
-
-    def __json__(self):
-        """ Returns a dict representation of the object. """
-        attrs = [
-            prop.key for prop in class_mapper(HostedRequest).iterate_properties
-            if prop.key not in ['mailing_lists']
-        ]
-        return dict([(attr, getattr(self, attr)) for attr in attrs])
 
 
 class RequestForm(Form):

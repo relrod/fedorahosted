@@ -83,6 +83,23 @@ class FedoraHostedTestCase(unittest.TestCase):
             print str(e)
         assert okay
 
+    def test_jsonify_mailing_list(self):
+        """Checks that JSONifying works with a mailing list."""
+        self.app.post('/', data={
+                "project_name": "test",
+                "project_pretty_name": "A test project",
+                "project_description": "This project does X and Y and Z too!",
+                "project_owner": "testaccount",
+                "project_scm": "git",
+                "project_trac": True,
+                "project_mailing_lists-0": "awesome-list",
+        }, follow_redirects=True)
+        hosting_request = self.app.get('/getrequest?id=1')
+
+        # Did our mailing list make it in and get jsonified back?
+        parsed_json = json.loads(hosting_request.data)
+        assert(len(parsed_json['mailing_lists']) == 1)
+
     def test_jsonify_invalid_id(self):
         """Checks that we properly handle JSONifying a nonexistent request."""
         hosting_request = self.app.get('/getrequest?id=1337')
