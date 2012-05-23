@@ -1,21 +1,19 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!doctype html>
 <html>
   <head>
     <link rel="stylesheet" type="text/css" media="all" href="https://fedoraproject.org/static/css/fedora.css">
     <link rel="shortcut icon" href="https://fedoraproject.org/static/images/favicon.ico" type="image/vnd.microsoft.icon">
     <!--[if lt IE 7]>
     <style type="text/css">
-      #wrapper
-      {
-      height: 100%;
-      overflow: visible!important;
+      #wrapper {
+        height: 100%;
+        overflow: visible!important;
       }
     </style>
     <![endif]-->
-
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='custom.css') }}">
-
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='custom.css') }}">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='mailinglists.js') }}"></script>
     <title>Fedora Hosted</title>
   </head>
   <body>

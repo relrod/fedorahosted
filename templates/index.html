@@ -15,6 +15,13 @@
     {{ render_field(form.project_scm) }}
     {{ render_field(form.project_trac) }}
     {{ render_field(form.project_owner) }}
+    {% for field in form.project_mailing_lists %}
+      {{ render_field(field, class="ml_field") }}
+    {% endfor %}
+    <tr id="tr_moar_lists">
+      <td>More Mailing Lists?</td>
+      <td><a href="#" id="moar_lists">Add Mailing List Field</a></td>
+    </tr>
     <tr>
       <td>Submit</td>
       <td><button type="submit">Submit</button></td>

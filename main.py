@@ -7,7 +7,8 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import class_mapper
-from wtforms import Form, BooleanField, TextField, SelectField, validators
+from wtforms import Form, BooleanField, TextField, SelectField, validators, \
+    FieldList
 import fedora.client
 
 from fedorahosted_config import *
@@ -55,13 +56,17 @@ class RequestForm(Form):
     project_pretty_name = TextField('Pretty Name',
                                     [validators.Length(min=1, max=150)])
     project_description = TextField('Short Description',
-                            [validators.Length(min=1, max=255)])
+                                    [validators.Length(min=1, max=255)])
     project_owner = TextField('Owner FAS Username',
                               [validators.Length(min=1, max=32)])
     project_scm = SelectField('SCM',
-                      choices=[('git', 'git'), ('svn', 'svn'), ('hg', 'hg')])
+                              choices=[('git', 'git'),
+                                       ('svn', 'svn'),
+                                       ('hg', 'hg')])
     project_trac = BooleanField('Trac Instance?')
-    # TODO: Handle mailing lists
+    project_mailing_lists = FieldList(TextField('Mailing List',
+                                                [validators.Length(max=64)]),
+                                      min_entries=1)
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -77,7 +82,17 @@ def hello():
             owner=form.project_owner.data)
         db.session.add(hosted_request)
         db.session.commit()
+
+        for entry in form.project_mailing_lists.entries:
+            if entry.data:
+                mailing_list = MailingList(
+                    name=entry.data,
+                    request_id=hosted_request.id)
+                db.session.add(mailing_list)
+                db.session.commit()
         return render_template('completed.html')
+
+    # GET, not POST.
     return render_template('index.html', form=form)
 
 

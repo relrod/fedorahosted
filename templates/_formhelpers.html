@@ -1,5 +1,5 @@
 {% macro render_field(field) %}
-<tr>
+<tr id="tr_{{ field.id }}">
   <td>{{ field.label }}</td>
   <td>
     {{ field(**kwargs)|safe }}
