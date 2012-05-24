@@ -45,8 +45,12 @@ class JSONifiable(object):
 
     def _expand(self, relation, recurse):
         """ Return the __json__() or id of a sqlalchemy relationship. """
+
         if hasattr(relation, 'all'):
-            return [self._expand(item, recurse) for item in relation.all()]
+            relation = relation.all()
+
+        if hasattr(relation, '__iter__'):
+            return [self._expand(item, recurse) for item in relation]
 
         if recurse:
             return relation.__json__(False)
