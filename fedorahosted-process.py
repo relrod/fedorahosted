@@ -82,8 +82,8 @@ if args.REQUEST_ID:
         processor_username = raw_input("FAS username: ")
         processor_password = getpass.getpass("FAS password: ")
 
-        request = urllib2.urlopen(args.SERVER + '/getrequest?id=' +
-                                  args.REQUEST_ID)
+    request = urllib2.urlopen(args.SERVER + '/getrequest?id=' +
+                              args.REQUEST_ID)
     project = json.loads(request.read())
 
     verbose_print("Response from the webapp server: %s" % project)
@@ -101,7 +101,8 @@ if args.REQUEST_ID:
 
     # I wish Python had a switch/case equivalent.
     if project['scm'] == 'git':
-        print "Creating /git/" + project['name'] + ".git directory"
+        print "Creating /git/" + project['name'] + ".git directory."
+        print "Entering /git/" + project['name'] + ".git directory."
         if not args.noop:
             os.mkdir("/git/" + project['name'] + ".git")
             os.chdir("/git/" + project['name'] + ".git")
@@ -113,7 +114,7 @@ if args.REQUEST_ID:
                 description.write(project['description'])
 
         print "Creating post-update symlink."
-        if not arghs.noop:
+        if not args.noop:
             os.unlink("hooks/post-update")
             os.symlink(
                 "/usr/share/git-core/templates/hooks/post-update.sample",
@@ -121,9 +122,9 @@ if args.REQUEST_ID:
 
         # TODO: Is it worth pythonizing these one day?
         run_command_if_allowed("git update-server-info")
-        run_command_if_allowed("find -type d -exec chmod g+s \{\} \;")
+        run_command_if_allowed("find -type d -exec chmod g+s {} ;")
         run_command_if_allowed(
-            "find -perm /u+w -a ! -perm /g+w -exec chmod g+w \{\} \;")
+            "find -perm /u+w -a ! -perm /g+w -exec chmod g+w {} ;")
         run_command_if_allowed(
             "chown -R " + project['owner'] + ":" + project_group)
 
