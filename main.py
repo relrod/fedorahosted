@@ -22,11 +22,14 @@ db = SQLAlchemy(app)
 class JSONifiable(object):
     """ A mixin for sqlalchemy models providing a .__json__ method. """
 
-    def __json__(self, recurse=True):
+    def __json__(self, seen=None):
         """ Returns a dict representation of the object.
 
         Recursively evaluates .__json__() on its relationships.
         """
+
+        if not seen:
+            seen = []
 
         properties = list(class_mapper(type(self)).iterate_properties)
         relationships = [
@@ -39,21 +42,21 @@ class JSONifiable(object):
         d = dict([(attr, getattr(self, attr)) for attr in attrs])
 
         for attr in relationships:
-            d[attr] = self._expand(getattr(self, attr), recurse)
+            d[attr] = self._expand(getattr(self, attr), seen)
 
         return d
 
-    def _expand(self, relation, recurse):
+    def _expand(self, relation, seen):
         """ Return the __json__() or id of a sqlalchemy relationship. """
 
         if hasattr(relation, 'all'):
             relation = relation.all()
 
         if hasattr(relation, '__iter__'):
-            return [self._expand(item, recurse) for item in relation]
+            return [self._expand(item, seen) for item in relation]
 
-        if recurse:
-            return relation.__json__(False)
+        if type(self) not in seen:
+            return relation.__json__(seen + [type(self)])
         else:
             return relation.id
 
@@ -65,15 +68,22 @@ class MailingList(db.Model, JSONifiable):
     # on local-part, so use that.
     name = db.Column(db.String, unique=True)
 
-lists_requests = db.Table('lists_requests',
-                          db.Column('mailing_list_id',
-                                    db.Integer,
-                                    db.ForeignKey('mailing_list.id')),
-                          db.Column('request_id',
-                                    db.Integer,
-                                    db.ForeignKey('hosted_request.id')),
-                          db.Column('commit_list',
-                                    db.Boolean, default=False))
+
+class ListRequest(db.Model, JSONifiable):
+    id = db.Column(db.Integer, primary_key=True)
+    commit_list = db.Column(db.Boolean, default=False)
+
+    mailing_list_id = db.Column(db.Integer,
+                                db.ForeignKey('mailing_list.id'))
+    mailing_list = db.relationship('MailingList',
+                                   backref=db.backref(
+                                       'list_request', lazy='dynamic'))
+
+    hosted_request_id = db.Column(db.Integer,
+                                  db.ForeignKey('hosted_request.id'))
+    hosted_request = db.relationship('HostedRequest',
+                                     backref=db.backref(
+                                         'list_request', lazy='dynamic'))
 
 
 class HostedRequest(db.Model, JSONifiable):
@@ -86,7 +96,7 @@ class HostedRequest(db.Model, JSONifiable):
     owner = db.Column(db.String(32))  # 32 is the max username length in FAS
     completed = db.Column(db.Boolean, default=False)
     mailing_lists = db.relationship('MailingList',
-                                    secondary=lists_requests,
+                                    secondary=ListRequest.__table__,
                                     backref=db.backref('hosted_requests',
                                                        lazy='dynamic'))
 

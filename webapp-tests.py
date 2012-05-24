@@ -97,11 +97,12 @@ class FedoraHostedTestCase(unittest.TestCase):
         hosting_request = self.app.get('/getrequest?id=1')
 
         parsed_json = json.loads(hosting_request.data)
-        self.assertEqual(len(parsed_json['mailing_lists']), 1,
+
+        self.assertEqual(len(parsed_json['list_request']), 1,
                          "Did mailing list make it and get jsonified back?")
-        self.assertIn('commit_list', parsed_json['mailing_lists'][0],
+        self.assertIn('commit_list', parsed_json['list_request'][0],
                       "Does the mailing list entry have a commit bool?")
-        commit_list = parsed_json['mailing_lists'][0]['commit_list']
+        commit_list = parsed_json['list_request'][0]['commit_list']
         self.assertEqual(type(commit_list), bool,
                          "Is 'commit_list' a bool?")
 
