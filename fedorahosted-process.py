@@ -41,16 +41,9 @@ def run_command_if_allowed(command):
     Runs a system command and prints the result.
     "allowed" is determined by the state of args.noop.
     """
-    user = getpass.getuser()
-    if user == "root":
-        prompt = "#"
-    else:
-        prompt = "$"
-    print "[%s@%s %s]%s %s" % (
-        user,
+    print "[root@%s %s]# %s" % (
         socket.gethostname(),
         os.getcwd(),
-        prompt,
         command)
     if args.noop:
         return
@@ -79,6 +72,11 @@ if args.noop:
 
 if args.REQUEST_ID:
     if not args.noop:
+        user = getpass.getuser()
+        if user != "root":
+            print "Processing requests should be run as root."
+            print "However, you can run with --noop as an unprivileged user."
+            sys.exit(1)
         processor_username = raw_input("FAS username: ")
         processor_password = getpass.getpass("FAS password: ")
 
