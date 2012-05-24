@@ -9,6 +9,7 @@ import json
 import getpass
 import socket
 import sys
+import os
 import subprocess
 import shlex
 
@@ -35,16 +36,20 @@ parser.add_argument('-s',
 args = parser.parse_args()
 
 
-def run_command(command):
-    """Runs a system command and prints the result."""
+def run_command_if_allowed(command):
+    """
+    Runs a system command and prints the result.
+    "allowed" is determined by the state of args.noop.
+    """
     user = getpass.getuser()
     if user == "root":
         prompt = "#"
     else:
         prompt = "$"
-    print "[%s@%s]%s %s" % (
+    print "[%s@%s %s]%s %s" % (
         user,
         socket.gethostname(),
+        os.getcwd(),
         prompt,
         command)
     if args.noop:
@@ -77,7 +82,7 @@ if args.REQUEST_ID:
         processor_username = raw_input("FAS username: ")
         processor_password = getpass.getpass("FAS password: ")
 
-    request = urllib2.urlopen(args.SERVER + '/getrequest?id=' + \
+        request = urllib2.urlopen(args.SERVER + '/getrequest?id=' +
                                   args.REQUEST_ID)
     project = json.loads(request.read())
 
@@ -87,5 +92,44 @@ if args.REQUEST_ID:
         print "ERROR: %s" % project['error']
         sys.exit(1)
 
-    # Just for testing.
-    run_command("uptime")
+    project_group = project['scm'] + project['name']
+
+    # print "Creating FAS group: " + project_group
+    # if not create_fas_group(project_group):
+    #     print "ERROR creating FAS group: " + project['scm'] + project['name']
+    #     sys.exit(1)
+
+    # I wish Python had a switch/case equivalent.
+    if project['scm'] == 'git':
+        print "Creating /git/" + project['name'] + ".git directory"
+        if not args.noop:
+            os.mkdir("/git/" + project['name'] + ".git")
+            os.chdir("/git/" + project['name'] + ".git")
+            print "Working directory: " + os.getcwd()
+
+        print "Writing 'description' file."
+        if not args.noop:
+            with open("description", "w") as description:
+                description.write(project['description'])
+
+        print "Creating post-update symlink."
+        if not arghs.noop:
+            os.unlink("hooks/post-update")
+            os.symlink(
+                "/usr/share/git-core/templates/hooks/post-update.sample",
+                "hooks/post-update")
+
+        # TODO: Is it worth pythonizing these one day?
+        run_command_if_allowed("git update-server-info")
+        run_command_if_allowed("find -type d -exec chmod g+s \{\} \;")
+        run_command_if_allowed(
+            "find -perm /u+w -a ! -perm /g+w -exec chmod g+w \{\} \;")
+        run_command_if_allowed(
+            "chown -R " + project['owner'] + ":" + project_group)
+
+        # TODO: Mailing (and commit) lists.
+
+    elif project['scm'] == 'hg':
+        do_things()
+    elif project['scm'] == 'svn':
+        do_things()
