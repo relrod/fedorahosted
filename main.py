@@ -59,12 +59,17 @@ class MailingList(db.Model, JSONifiable):
     id = db.Column(db.Integer, primary_key=True)
     # mailman does not enforce a hard limit. SMTP specifies 64-char limit
     # on local-part, so use that.
-    name = db.Column(db.String(64), unique=True)
-    request_id = db.Column(db.Integer, db.ForeignKey('hosted_request.id'))
-    # TODO: wtf does this actually do?
-    request = db.relationship('HostedRequest',
-                              backref=db.backref('mailing_lists',
-                                                 lazy='dynamic'))
+    name = db.Column(db.String, unique=True)
+
+lists_requests = db.Table('lists_requests',
+                          db.Column('mailing_list_id',
+                                    db.Integer,
+                                    db.ForeignKey('mailing_list.id')),
+                          db.Column('request_id',
+                                    db.Integer,
+                                    db.ForeignKey('hosted_request.id')),
+                          db.Column('commit_list',
+                                    db.Boolean, default=False))
 
 
 class HostedRequest(db.Model, JSONifiable):
@@ -76,6 +81,10 @@ class HostedRequest(db.Model, JSONifiable):
     trac = db.Column(db.Boolean)
     owner = db.Column(db.String(32))  # 32 is the max username length in FAS
     completed = db.Column(db.Boolean, default=False)
+    mailing_lists = db.relationship('MailingList',
+                                    secondary=lists_requests,
+                                    backref=db.backref('hosted_requests',
+                                                       lazy='dynamic'))
 
 
 class RequestForm(Form):
@@ -95,6 +104,8 @@ class RequestForm(Form):
     project_mailing_lists = FieldList(TextField('Mailing List',
                                                 [validators.Length(max=64)]),
                                       min_entries=1)
+    project_commit_lists = FieldList(TextField('Send commit emails to'),
+                                     min_entries=1)
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -111,13 +122,24 @@ def hello():
         db.session.add(hosted_request)
         db.session.commit()
 
+        # Project specific mailing lists
         for entry in form.project_mailing_lists.entries:
             if entry.data:
-                mailing_list = MailingList(
-                    name=entry.data,
-                    request_id=hosted_request.id)
-                db.session.add(mailing_list)
+                # Create the mailing list if it doesn't exist.
+                lists = HostedRequest.query.filter_by(
+                    name=entry.data + "@lists.fedorahosted.org")
+                if lists.count() > 0:
+                    # It already exists
+                    mailing_list = lists.first()
+                else:
+                    # Create it
+                    mailing_list = MailingList(
+                        name=entry.data + "@lists.fedorahosted.org")
+                    db.session.add(mailing_list)
+                    db.session.commit()
+                hosted_request.mailing_lists.append(mailing_list)
                 db.session.commit()
+
         return render_template('completed.html')
 
     # GET, not POST.
