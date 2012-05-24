@@ -96,9 +96,14 @@ class FedoraHostedTestCase(unittest.TestCase):
         }, follow_redirects=True)
         hosting_request = self.app.get('/getrequest?id=1')
 
-        # Did our mailing list make it in and get jsonified back?
         parsed_json = json.loads(hosting_request.data)
-        assert(len(parsed_json['mailing_lists']) == 1)
+        self.assertEqual(len(parsed_json['mailing_lists']), 1,
+                         "Did mailing list make it and get jsonified back?")
+        self.assertIn('commit_list', parsed_json['mailing_lists'][0],
+                      "Does the mailing list entry have a commit bool?")
+        commit_list = parsed_json['mailing_lists'][0]['commit_list']
+        self.assertEqual(type(commit_list), bool,
+                         "Is 'commit_list' a bool?")
 
     def test_jsonify_invalid_id(self):
         """Checks that we properly handle JSONifying a nonexistent request."""
