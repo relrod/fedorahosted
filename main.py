@@ -171,7 +171,9 @@ def get_request():
     """Returns a JSON representation of a Fedora Hosted Request."""
     hosted_request = HostedRequest.query.filter_by(id=request.args.get('id'))
     if hosted_request.count() > 0:
-        return jsonify(hosted_request.first().__json__())
+        request_json = hosted_request.first().__json__()
+        del request_json['mailing_lists']
+        return jsonify(request_json)
     else:
         return jsonify(error="No hosted request with that ID could be found.")
 
