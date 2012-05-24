@@ -92,7 +92,7 @@ if args.REQUEST_ID:
         print "ERROR: %s" % project['error']
         sys.exit(1)
 
-    project_group = project['scm'] + project['name']
+    project_group = str(project['scm'] + project['name'])
 
     # print "Creating FAS group: " + project_group
     # if not create_fas_group(project_group):
@@ -108,6 +108,8 @@ if args.REQUEST_ID:
             os.chdir("/git/" + project['name'] + ".git")
             print "Working directory: " + os.getcwd()
 
+        run_command_if_allowed("git --bare init --shared=true")
+
         print "Writing 'description' file."
         if not args.noop:
             with open("description", "w") as description:
@@ -115,7 +117,8 @@ if args.REQUEST_ID:
 
         print "Creating post-update symlink."
         if not args.noop:
-            os.unlink("hooks/post-update")
+            if os.path.isfile("hooks/post-update"):
+                os.unlink("hooks/post-update")
             os.symlink(
                 "/usr/share/git-core/templates/hooks/post-update.sample",
                 "hooks/post-update")
@@ -126,7 +129,7 @@ if args.REQUEST_ID:
         run_command_if_allowed(
             "find -perm /u+w -a ! -perm /g+w -exec chmod g+w {} ;")
         run_command_if_allowed(
-            "chown -R " + project['owner'] + ":" + project_group)
+            "chown -R " + str(project['owner']) + ":" + project_group + " .")
 
         # TODO: Mailing (and commit) lists.
 
