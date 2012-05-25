@@ -31,7 +31,13 @@
   </tr>
   <tr>
     <td>Mailing Lists</td>
-    <td></td>
+    <td>
+      <ul>
+        {% for list in request.mailing_lists %}
+        <li>{{ list.name }}</li>
+        {% endfor %}
+      </ul>
+    </td>
   </tr>
   <tr>
     <td>Send Commits To</td>
