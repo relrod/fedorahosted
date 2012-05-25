@@ -81,7 +81,8 @@ if args.REQUEST_ID:
         processor_password = getpass.getpass("FAS password: ")
 
     request = urllib2.urlopen(args.SERVER + '/getrequest?id=' +
-                              args.REQUEST_ID)
+                              args.REQUEST_ID,
+                              timeout=5)  # Give up after 5 seconds.
     project = json.loads(request.read())
 
     verbose_print("Response from the webapp server: %s" % project)
