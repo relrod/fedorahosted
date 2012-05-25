@@ -9,7 +9,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.properties import RelationshipProperty
 from wtforms import Form, BooleanField, TextField, SelectField, validators, \
-    FieldList
+    FieldList, ValidationError
 import fedora.client
 
 from fedorahosted_config import *
@@ -68,6 +68,21 @@ class MailingList(db.Model, JSONifiable):
     # on local-part, so use that.
     name = db.Column(db.String, unique=True)
 
+    @classmethod
+    def find_or_create_by_name(self, name):
+        """
+        If a list with the given name exists, return it.
+        Otherwise create it, *then* return it.
+        """
+        lists = self.query.filter_by(name=name)
+        if lists.count() > 0:
+            return lists.first()
+        else:
+            new_list = self(name=name)
+            db.session.add(new_list)
+            db.session.commit()
+            return new_list
+
 
 class ListRequest(db.Model, JSONifiable):
     id = db.Column(db.Integer, primary_key=True)
@@ -101,6 +116,15 @@ class HostedRequest(db.Model, JSONifiable):
                                                        lazy='dynamic'))
 
 
+def valid_mailing_list_name(form, mailing_list):
+    if not mailing_list.data:
+        return
+    if not mailing_list.data.startswith(form.project_name.data):
+        raise ValidationError("Mailing lists must start with the project " \
+                                  "name and a dash, e.g. '%s-users'" % (
+                form.project_name.data))
+
+
 class RequestForm(Form):
     project_name = TextField('Name (lowercase, alphanumeric only)',
                              [validators.Length(min=1, max=150)])
@@ -115,17 +139,20 @@ class RequestForm(Form):
                                        ('svn', 'svn'),
                                        ('hg', 'hg')])
     project_trac = BooleanField('Trac Instance?')
-    project_mailing_lists = FieldList(TextField('Mailing List',
-                                                [validators.Length(max=64)]),
-                                      min_entries=1)
-    project_commit_lists = FieldList(TextField('Send commit emails to'),
-                                     min_entries=1)
+    project_mailing_lists = FieldList(
+        TextField('Mailing List (must start with the project name)',
+                  [validators.Length(max=64), valid_mailing_list_name]),
+        min_entries=1)
+    project_commit_lists = FieldList(
+        TextField('Send commit emails to (full email address)'),
+        min_entries=1)
 
 
 @app.route('/', methods=['POST', 'GET'])
 def hello():
     form = RequestForm(request.form)
     if request.method == 'POST' and form.validate():
+        # The hosted request itself (no mailing lists)
         hosted_request = HostedRequest(
             name=form.project_name.data,
             pretty_name=form.project_pretty_name.data,
@@ -136,22 +163,33 @@ def hello():
         db.session.add(hosted_request)
         db.session.commit()
 
-        # Project specific mailing lists
+        # Mailing lists
         for entry in form.project_mailing_lists.entries:
             if entry.data:
-                # Create the mailing list if it doesn't exist.
-                lists = HostedRequest.query.filter_by(
-                    name=entry.data + "@lists.fedorahosted.org")
-                if lists.count() > 0:
-                    # It already exists
-                    mailing_list = lists.first()
-                else:
-                    # Create it
-                    mailing_list = MailingList(
-                        name=entry.data + "@lists.fedorahosted.org")
-                    db.session.add(mailing_list)
-                    db.session.commit()
-                hosted_request.mailing_lists.append(mailing_list)
+                # The field wasn't left blank...
+                list_name = entry.data
+
+                # The person only entered the list name, not the full address.
+                if not list_name.endswith("@lists.fedorahosted.org"):
+                    list_name = list_name + "@lists.fedorahosted.org"
+
+                mailing_list = MailingList.find_or_create_by_name(list_name)
+
+                # The last step before storing the list is handling
+                # commit lists -- lists that get commit messages -- which also
+                # appear as regular lists.
+                commit_list = False
+                if list_name in form.project_commit_lists.entries:
+                    del form.project_commit_lists.entries[list_name]
+                    commit_list = True
+
+                # Now we have a mailing list object (in mailing_list), we can
+                # store the relationship using it.
+                list_request = ListRequest(
+                    mailing_list=mailing_list,
+                    hosted_request=hosted_request,
+                    commit_list=commit_list)
+                db.session.add(list_request)
                 db.session.commit()
 
         return render_template('completed.html')
@@ -205,4 +243,4 @@ def mark_complete():
         return jsonify(error="No hosted request with that ID could be found.")
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0')

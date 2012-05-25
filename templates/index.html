@@ -15,6 +15,8 @@
     {{ render_field(form.project_scm) }}
     {{ render_field(form.project_trac) }}
     {{ render_field(form.project_owner) }}
+
+    {# Regular mailing lists #}
     {% for field in form.project_mailing_lists %}
       {{ render_field(field, class="ml_field") }}
     {% endfor %}
@@ -22,6 +24,16 @@
       <td>More Mailing Lists?</td>
       <td><a href="#" id="moar_lists">Add Mailing List Field</a></td>
     </tr>
+
+    {# Commit lists #}
+    {% for field in form.project_commit_lists %}
+      {{ render_field(field, class="cl_field") }}
+    {% endfor %}
+    <tr id="tr_moar_commit_lists">
+      <td>More Commit Lists?</td>
+      <td><a href="#" id="moar_commit_lists">Add Commit List Field</a></td>
+    </tr>
+
     <tr>
       <td>Submit</td>
       <td><button type="submit">Submit</button></td>

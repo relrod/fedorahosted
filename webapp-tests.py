@@ -92,7 +92,7 @@ class FedoraHostedTestCase(unittest.TestCase):
                 "project_owner": "testaccount",
                 "project_scm": "git",
                 "project_trac": True,
-                "project_mailing_lists-0": "awesome-list",
+                "project_mailing_lists-0": "test-list",
         }, follow_redirects=True)
         hosting_request = self.app.get('/getrequest?id=1')
 
@@ -105,6 +105,51 @@ class FedoraHostedTestCase(unittest.TestCase):
         commit_list = parsed_json['list_request'][0]['commit_list']
         self.assertEqual(type(commit_list), bool,
                          "Is 'commit_list' a bool?")
+
+    def test_require_valid_mailing_list_name(self):
+        """Checks that a valid mailing list name is required."""
+        response = self.app.post('/', data={
+                "project_name": "test",
+                "project_pretty_name": "A test project",
+                "project_description": "This project does X and Y and Z too!",
+                "project_owner": "testaccount",
+                "project_scm": "git",
+                "project_trac": True,
+                "project_mailing_lists-0": "notatest-list",
+        }, follow_redirects=True)
+
+        self.assertRegexpMatches(response.data,
+                                 "Mailing lists must start with the project" \
+                                     " name")
+
+        response = self.app.post('/', data={
+                "project_name": "test",
+                "project_pretty_name": "A test project",
+                "project_description": "This project does X and Y and Z too!",
+                "project_owner": "testaccount",
+                "project_scm": "git",
+                "project_trac": True,
+                "project_mailing_lists-0": "test-list",
+                "project_mailing_lists-1": "notatest-list",
+        }, follow_redirects=True)
+
+        self.assertRegexpMatches(response.data,
+                                 "Mailing lists must start with the project" \
+                                     " name")
+
+        response = self.app.post('/', data={
+                "project_name": "test",
+                "project_pretty_name": "A test project",
+                "project_description": "This project does X and Y and Z too!",
+                "project_owner": "testaccount",
+                "project_scm": "git",
+                "project_trac": True,
+                "project_mailing_lists-0": "test-list",
+                "project_mailing_lists-1": "test-foo",
+        }, follow_redirects=True)
+
+        self.assertRegexpMatches(response.data,
+                                 "Your request has been received")
 
     def test_jsonify_invalid_id(self):
         """Checks that we properly handle JSONifying a nonexistent request."""
