@@ -192,6 +192,17 @@ def hello():
                 db.session.add(list_request)
                 db.session.commit()
 
+        # Add the remaining commit list entries to the project.
+        for entry in form.project_commit_lists.entries:
+            if entry.data:
+                mailing_list = MailingList.find_or_create_by_name(entry.data)
+                list_request = ListRequest(
+                    mailing_list=mailing_list,
+                    hosted_request=hosted_request,
+                    commit_list=True)
+                db.session.add(list_request)
+                db.session.commit()
+
         return render_template('completed.html')
 
     # GET, not POST.
