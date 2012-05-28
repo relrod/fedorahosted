@@ -66,7 +66,7 @@ Please follow PEP 8 and ensure all unit tests pass.
 A good `.git/hooks/pre-commit` hook is as follows (and make sure the hook is
 chmod +x) though it does depend on the package: `python-pep8`:
 
-`find -name '*.py' | xargs pep8 && python webapp-tests.py`
+`find . -type d -name fenv -prune -o -name '*.py' -print | xargs pep8 && python webapp-tests.py`
 
 If you plan on contributing often, consider adding `FEDORAHOSTED_CONFIG` to
 your .bash_profile. To do this, simply run this command, from the
