@@ -12,6 +12,7 @@ import sys
 import os
 import subprocess
 import shlex
+import ConfigParser
 
 parser = argparse.ArgumentParser(description='Fedora Hosted Request CLI')
 parser.add_argument('-n',
@@ -31,9 +32,36 @@ parser.add_argument('-r',
 parser.add_argument('-s',
                     '--server',
                     dest="SERVER",
-                    default="http://localhost:5000",
                     help='Server hosting the Fedora Hosted Request web app.')
+parser.add_argument('-c',
+                    '--config',
+                    dest="CONFIG",
+                    help='A configuration file to use.')
 args = parser.parse_args()
+
+# A lot of logic for a pretty small task.
+# If we're given a server explicitly as an argument, use that and move on.
+# Otherwise, check if we're given a config file as an argument. If we are,
+# try loading the given config file. If not, try loading a default one
+# (at /etc/fedorahosted/cli.conf). If the config file doesn't exist,
+# as a last resort, warn the user, and try defaulting to localhost.
+if args.SERVER:
+    server = args.SERVER
+else:
+    if args.CONFIG:
+        config_file = args.CONFIG
+    else:
+        config_file = '/etc/fedorahosted/cli.conf'
+
+    if os.path.exists(config_file):
+        config = ConfigParser.ConfigParser()
+        config.read(config_file)
+        server = config.get('fedorahosted_cli', 'server')
+    else:
+        print "[warning] No server specified (-s/--server), and no valid" \
+            " configuration file given (with -c/--config). Defaulting to" \
+            " http://localhost:5000."
+        server = 'http://localhost:5000'
 
 
 def run_command_if_allowed(command):
