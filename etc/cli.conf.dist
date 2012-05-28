@@ -1,0 +1,4 @@
+[fedorahosted_cli]
+
+# Default flask server - override with the '-s' flag.
+server='http://localhost:5000/'

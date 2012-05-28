@@ -15,7 +15,8 @@ import fedora.client
 from fedorahosted_config import *
 
 app = Flask(__name__)
-app.config.from_object(__name__)
+app.config.from_object('fedorahosted.default_config')
+app.config.from_envvar('FEDORAHOSTED_CONFIG')
 db = SQLAlchemy(app)
 
 

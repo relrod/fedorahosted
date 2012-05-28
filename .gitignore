@@ -5,5 +5,6 @@
 *.swo
 *.pyc
 *.pyo
-fedorahosted_config.py
+etc/*
+!etc/*.dist
 fenv/

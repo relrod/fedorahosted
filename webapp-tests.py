@@ -4,7 +4,7 @@
 # GPLv2+
 
 import os
-import main
+from fedorahosted import main
 import unittest
 import tempfile
 import json
