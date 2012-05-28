@@ -11,6 +11,7 @@ from sqlalchemy.orm.properties import RelationshipProperty
 from wtforms import Form, BooleanField, TextField, SelectField, validators, \
     FieldList, ValidationError
 import fedora.client
+import fedmsg
 
 from fedorahosted_config import *
 
@@ -18,6 +19,7 @@ app = Flask(__name__)
 app.config.from_object('fedorahosted.default_config')
 app.config.from_envvar('FEDORAHOSTED_CONFIG')
 db = SQLAlchemy(app)
+fedmsg.init(name="fedorahosted")
 
 
 class JSONifiable(object):
@@ -204,6 +206,11 @@ def hello():
                 db.session.add(list_request)
                 db.session.commit()
 
+        fedmsg.send_message(
+            modname='fedorahosted',
+            topic='request.create',
+            msg=hosted_request)
+
         return render_template('completed.html')
 
     # GET, not POST.
@@ -250,6 +257,11 @@ def mark_complete():
 
         hosted_request[0].completed = True
         db.session.commit()
+
+        fedmsg.send_message(
+            modname='fedorahosted',
+            topic='request.complete',
+            msg=hosted_request[0])
         return jsonify(success="Request marked as completed.")
     else:
         return jsonify(error="No hosted request with that ID could be found.")
