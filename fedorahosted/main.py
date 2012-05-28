@@ -8,14 +8,22 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.properties import RelationshipProperty
-from wtforms import Form, BooleanField, TextField, SelectField, validators, \
+from flaskext.wtf import Form, BooleanField, TextField, SelectField, validators, \
     FieldList, ValidationError
 import fedora.client
 
-from fedorahosted_config import *
-
 app = Flask(__name__)
-app.config.from_object('fedorahosted.default_config')
+
+# Handle fedorahosted.main being imported (e.g. by webapp-tests.py)
+# or not.
+try:
+    app.config.from_object('fedorahosted.default_config')
+except ImportError:
+    try:
+        app.config.from_object('default_config')
+    except ImportError:
+        raise
+
 app.config.from_envvar('FEDORAHOSTED_CONFIG')
 db = SQLAlchemy(app)
 
@@ -151,8 +159,8 @@ class RequestForm(Form):
 
 @app.route('/', methods=['POST', 'GET'])
 def hello():
-    form = RequestForm(request.form)
-    if request.method == 'POST' and form.validate():
+    form = RequestForm()
+    if form.validate_on_submit():
         # The hosted request itself (no mailing lists)
         hosted_request = HostedRequest(
             name=form.project_name.data,
@@ -235,8 +243,8 @@ def mark_complete():
     project complete if it does. We do this this way so that we don't have to
     send FAS credentials to this app.
     """
-    fas = fedora.client.AccountSystem(username=FAS_USERNAME,
-                                      password=FAS_PASSWORD)
+    fas = fedora.client.AccountSystem(username=app.config['FAS_USERNAME'],
+                                      password=app.config['FAS_PASSWORD'])
     hosted_request = HostedRequest.query.filter_by(id=request.args.get('id'))
     if hosted_request.count() > 0:
         if hosted_request[0].completed == True:

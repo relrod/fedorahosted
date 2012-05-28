@@ -17,6 +17,7 @@ class FedoraHostedTestCase(unittest.TestCase):
         main.app.config['SQLALCHEMY_DATABASE_URI'] = \
             'sqlite:///' + self.sqlite_tmp
         main.app.config['TESTING'] = True
+        main.app.config['CSRF_ENABLED'] = False
         self.app = main.app.test_client()
         main.db.create_all()
 

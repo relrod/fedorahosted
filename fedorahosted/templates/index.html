@@ -8,6 +8,7 @@
 
 {% from "_formhelpers.html" import render_field %}
 <form action="" method="post">
+  {{ form.hidden_tag() }}
   <table>
     {{ render_field(form.project_name) }}
     {{ render_field(form.project_pretty_name) }}
