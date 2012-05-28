@@ -1,0 +1,4 @@
+include etc/*.dist
+recursive-include fedorahosted *
+recursive-exclude fedorahosted *.pyc
+recursive-exclude fedorahosted *~

@@ -8,8 +8,8 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.properties import RelationshipProperty
-from flaskext.wtf import Form, BooleanField, TextField, SelectField, validators, \
-    FieldList, ValidationError
+from flaskext.wtf import Form, BooleanField, TextField, SelectField, \
+    validators, FieldList, ValidationError
 import fedora.client
 
 app = Flask(__name__)
