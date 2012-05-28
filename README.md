@@ -44,7 +44,7 @@ To set up the app, copy the included `etc/fedorahosted_config.py.dist` to
 `etc/fedorahosted_config.py` and edit its values appropriately.
 
 Then point the FEDORAHOSTED_CONFIG environment variable to this config:
-`export FEDORAHOSTED_CONFIG=\`pwd\`/etc/fedorahosted_config.py`
+``export FEDORAHOSTED_CONFIG=`pwd`/etc/fedorahosted_config.py``
 
 If you're deploying via (the currently non-existent) rpm file, simply edit
 `/etc/fedorahosted/flask_config.py` and:
@@ -74,7 +74,7 @@ your .bash_profile. To do this, simply run this command, from the
 having to export the variable every time you open a new shell and decide to
 hack on the app.
 
-`echo "export FEDORAHOSTED_CONFIG=`pwd`/etc/fedorahosted_config.py" >> ~/.bash_profile`
+``echo "export FEDORAHOSTED_CONFIG=`pwd`/etc/fedorahosted_config.py" >> ~/.bash_profile``
 
 Above all, have fun, and don't be afraid to ask for help. We hang out in
 \#fedora-apps on Freenode.
