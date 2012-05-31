@@ -1,7 +1,6 @@
 .fhp-constraint {
     margin: 20px auto;
     width: 800px;
-    border: 1px solid #ccc;
     padding: 20px;
 }
 
@@ -9,3 +8,9 @@
     background: url('https://fedorahosted.org/web/static/images/fedora-hosted-banner.png') 0 50% no-repeat;
     width: 200px;
 }
+
+h1 { text-align: center; }
+
+input[type=text] { font-size: 1.3em; }
+
+hr { margin: 10px 0 10px 0; }

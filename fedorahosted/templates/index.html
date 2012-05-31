@@ -1,10 +1,16 @@
 {% extends "global.html" %}
 {% block content %}
 <h1>Fedora Hosted Project Request</h1>
+
 <p>
-  Hi there and welcome to Fedora Hosted. To request space for your open source
-  project, please fill out the form below, in its entirety.
+  Hi there, and welcome to the <a href="https://fedorahosted.org/">Fedora Hosted</a> project request system..
 </p>
+
+<p>
+  To request space for your open source project, please fill out the form below, in its entirety.
+</p>
+
+<hr />
 
 {% from "_formhelpers.html" import render_field %}
 <form action="" method="post">
@@ -19,7 +25,7 @@
 
     {# Regular mailing lists #}
     {% for field in form.project_mailing_lists %}
-      {{ render_field(field, class="ml_field") }}
+    {{ render_field(field, class="ml_field") }}
     {% endfor %}
     <tr id="tr_moar_lists">
       <td>More Mailing Lists?</td>
@@ -28,7 +34,7 @@
 
     {# Commit lists #}
     {% for field in form.project_commit_lists %}
-      {{ render_field(field, class="cl_field") }}
+    {{ render_field(field, class="cl_field") }}
     {% endfor %}
     <tr id="tr_moar_commit_lists">
       <td>More Commit Lists?</td>
