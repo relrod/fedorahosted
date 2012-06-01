@@ -33,36 +33,48 @@ parser.add_argument('-s',
                     '--server',
                     dest="SERVER",
                     help='Server hosting the Fedora Hosted Request web app.')
+parser.add_argument('-i',
+                    '--private-key',
+                    dest="PRIVATE_KEY",
+                    help='The private SSH key we should authenticate to' \
+                        'mailing list servers with.')
 parser.add_argument('-c',
                     '--config',
                     dest="CONFIG",
+                    default="/etc/fedorahosted/cli.conf",
                     help='A configuration file to use.')
 args = parser.parse_args()
 
-# A lot of logic for a pretty small task.
-# If we're given a server explicitly as an argument, use that and move on.
-# Otherwise, check if we're given a config file as an argument. If we are,
-# try loading the given config file. If not, try loading a default one
-# (at /etc/fedorahosted/cli.conf). If the config file doesn't exist,
-# as a last resort, warn the user, and try defaulting to localhost.
-if args.SERVER:
-    server = args.SERVER
-else:
-    if args.CONFIG:
-        config_file = args.CONFIG
-    else:
-        config_file = '/etc/fedorahosted/cli.conf'
+# Handle the config file here, if it exists.
+config = None
+if os.path.exists(args.CONFIG):
+    config = ConfigParser.ConfigParser()
+    config.read(args.CONFIG)
 
-    if os.path.exists(config_file):
-        config = ConfigParser.ConfigParser()
-        config.read(config_file)
-        server = config.get('fedorahosted_cli', 'server')
+def get_option_value(argname, section, key, die=True, default=None, warning=None):
+    if argname in args.__dict__.keys() and args.__dict__[argname] != None:
+        return args.__dict__[argname]
+    elif config:
+        return config.get(section, key)
+    elif default:
+        if warning:
+            print '[warning] ' + warning
+        else:
+            print '[warning] No argument %s passed or config file setting ' \
+                '%s.%s. Defaulting to %s.' % (argname, section, key, default)
+        return default
+    elif die:
+        print "[error] Missing required argument %s (or config setting: %s.%s)" \
+            % (argname, section, key)
+        sys.exit(1)
     else:
-        print "[warning] No server specified (-s/--server), and no valid" \
-            " configuration file given (with -c/--config). Defaulting to" \
-            " http://localhost:5000."
-        server = 'http://localhost:5000'
+        return None
 
+server = get_option_value('SERVER', 'fedorahosted_cli', 'server',
+                          default='http://localhost:5000')
+
+private_key = get_option_value('PRIVATE_KEY', 'fedorahosted_cli',
+                               'private_key')
 
 def run_command_if_allowed(command):
     """
