@@ -35,6 +35,7 @@ This application stores, manages, and processes Fedora Hosted requests.
 * python-flask-wtf
 * python-sqlalchemy
 * python-wtforms
+* ansible
 * python-argparse (for CLI, and only for Python <2.7 (needed on RHEL 6))
 * python-pep8 (if you plan on hacking, not needed to deploy)
 

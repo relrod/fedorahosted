@@ -24,6 +24,8 @@ Stores, manages, and processes Fedora Hosted requests.
 
 %package cli
 Summary:        CLI to 'fedorahosted' to create or process requests
+Requires:       ansible
+Requires:       python-fedora
 
 %description cli
 Provides a CLI to 'fedorahosted' which allows administrators to process new
