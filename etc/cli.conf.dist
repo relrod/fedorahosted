@@ -1,9 +1,9 @@
 [fedorahosted_cli]
 
 # Default flask server - override with the '-s' flag.
-server='http://localhost:5000/'
+server=http://localhost:5000/
 
 # Default private ssh key for ansible to communicate with mailing
 # list servers. It ssh's into them and runs the fedora-mailing-list-setup
 # script view ssh/ansible. - override with the '-i' flag.
-private_key='/root/fedorahosted-lists-id_rsa'
+private_key=/root/fedorahosted-lists-id_rsa
