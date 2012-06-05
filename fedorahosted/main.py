@@ -128,7 +128,7 @@ class HostedRequest(db.Model, JSONifiable):
 def valid_mailing_list_name(form, mailing_list):
     if not mailing_list.data:
         return
-    if not mailing_list.data.startswith(form.project_name.data):
+    if not mailing_list.data.startswith(form.project_name.data + '-'):
         raise ValidationError("Mailing lists must start with the project " \
                                   "name and a dash, e.g. '%s-users'" % (
                 form.project_name.data))
@@ -263,4 +263,4 @@ def mark_complete():
         return jsonify(error="No hosted request with that ID could be found.")
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host='127.0.0.1')
