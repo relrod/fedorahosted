@@ -209,12 +209,18 @@ if args.REQUEST_ID:
             "chown -R " + str(project['owner']) + ":" + project_group + " .")
 
         # Commit lists
-        for commit_list in commit_lists:
-             run_command_if_allowed("git config hooks.mailinglist " + commit_list)
-             run_command_if_allowed("git config hooks.maildomain fedoraproject.org")
-             run_command_if_allowed("git config hooks.emailprefix " + project['name'])
-             run_command_if_allowed("git config repouri 'http://git.fedorahosted.org/git/?p=" + project['name'] + ".git'")
-             run_command_if_allowed("ln -svf /usr/local/bin/git-notifier ./post-receive")
+        if len(commit_lists) != 0:
+            run_command_if_allowed("git config hooks.mailinglist " +
+                                   ','.join(commit_lists))
+            run_command_if_allowed(
+                "git config hooks.maildomain fedoraproject.org")
+            run_command_if_allowed("git config hooks.emailprefix " +
+                                   project['name'])
+            run_command_if_allowed(
+                "git config repouri 'http://git.fedorahosted.org/git/?p=" +
+                project['name'] + ".git'")
+            run_command_if_allowed(
+                "ln -svf /usr/local/bin/git-notifier ./hosts/post-receive")
 
     elif project['scm'] == 'hg':
         do_things()
