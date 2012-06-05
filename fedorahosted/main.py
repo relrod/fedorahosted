@@ -134,6 +134,14 @@ def valid_mailing_list_name(form, mailing_list):
                 form.project_name.data))
 
 
+def valid_email_address(form, commit_list):
+    if not commit_list.data:
+        return
+    if not '@' in commit_list.data:
+        raise ValidationError("Commit list must be a full email-address " \
+                                  "(e.g. contain a '@' sign).")
+
+
 class RequestForm(Form):
     project_name = TextField('Name (lowercase, alphanumeric only)',
                              [validators.Length(min=1, max=150)])
@@ -153,7 +161,8 @@ class RequestForm(Form):
                   [validators.Length(max=64), valid_mailing_list_name]),
         min_entries=1)
     project_commit_lists = FieldList(
-        TextField('Send commit emails to (full email address)'),
+        TextField('Send commit emails to (full email address)',
+                  [valid_email_address]),
         min_entries=1)
 
 
