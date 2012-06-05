@@ -56,7 +56,9 @@ if os.path.exists(args.CONFIG):
     config = ConfigParser.ConfigParser()
     config.read(args.CONFIG)
 
-def get_option_value(argname, section, key, die=True, default=None, warning=None):
+
+def get_option_value(argname, section, key, die=True, default=None,
+                     warning=None):
     if argname in args.__dict__.keys() and args.__dict__[argname] != None:
         return args.__dict__[argname]
     elif config:
@@ -69,7 +71,7 @@ def get_option_value(argname, section, key, die=True, default=None, warning=None
                 '%s.%s. Defaulting to %s.' % (argname, section, key, default)
         return default
     elif die:
-        print "[error] Missing required argument %s (or config setting: %s.%s)" \
+        print "[error] Missing required argument %s (or config key: %s.%s)" \
             % (argname, section, key)
         sys.exit(1)
     else:
@@ -83,6 +85,7 @@ private_key = get_option_value('PRIVATE_KEY', 'fedorahosted_cli',
 
 list_server = get_option_value('LIST_SERVER', 'fedorahosted_cli',
                                'mailing_lists_server')
+
 
 def run_command_if_allowed(command):
     """
@@ -159,8 +162,8 @@ if args.REQUEST_ID:
             commit_lists.append(list_name)
 
             if not list_name.endswith("@lists.fedorahosted.org"):
-                verbose_print("Ignoring non @lists.fedorahosted.org list, it's " +
-                              "likely a remotely hosted commit-announce list.")
+                verbose_print("Ignoring non @lists.fedorahosted.org list. " +
+                              "Likely a remotely hosted commit-announce list.")
                 pass
 
         command = '/usr/local/bin/fedora-mailing-list-setup %s %s' % (
