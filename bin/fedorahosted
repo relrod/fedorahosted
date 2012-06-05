@@ -155,6 +155,7 @@ if args.REQUEST_ID:
         list_name = list_request['mailing_list']['name']
 
         if list_request['commit_list']:
+            verbose_print("%s is a commit-list." % list_name)
             commit_lists.append(list_name)
 
             if not list_name.endswith("@lists.fedorahosted.org"):
@@ -207,7 +208,13 @@ if args.REQUEST_ID:
         run_command_if_allowed(
             "chown -R " + str(project['owner']) + ":" + project_group + " .")
 
-        # TODO: Mailing (and commit) lists.
+        # Commit lists
+        for commit_list in commit_lists:
+             run_command_if_allowed("git config hooks.mailinglist " + commit_list)
+             run_command_if_allowed("git config hooks.maildomain fedoraproject.org")
+             run_command_if_allowed("git config hooks.emailprefix " + project['name'])
+             run_command_if_allowed("git config repouri 'http://git.fedorahosted.org/git/?p=" + project['name'] + ".git'")
+             run_command_if_allowed("ln -svf /usr/local/bin/git-notifier ./post-receive")
 
     elif project['scm'] == 'hg':
         do_things()
