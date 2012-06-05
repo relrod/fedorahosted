@@ -7,3 +7,10 @@ server=http://localhost:5000/
 # list servers. It ssh's into them and runs the fedora-mailing-list-setup
 # script view ssh/ansible. - override with the '-i' flag.
 private_key=/root/fedorahosted-lists-id_rsa
+
+# Default mailing lists server which ansible will communicate with via ssh
+# using the above key, to create mailing lists.
+#
+# In doing so, it will run /usr/local/bin/fedora-mailing-list-setup to create
+# any required lists for a request.
+mailing_lists_server=hosted-lists01.fedoraproject.org

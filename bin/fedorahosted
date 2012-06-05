@@ -13,6 +13,7 @@ import os
 import subprocess
 import shlex
 import ConfigParser
+import ansible.runner
 
 parser = argparse.ArgumentParser(description='Fedora Hosted Request CLI')
 parser.add_argument('-n',
@@ -33,6 +34,10 @@ parser.add_argument('-s',
                     '--server',
                     dest="SERVER",
                     help='Server hosting the Fedora Hosted Request web app.')
+parser.add_argument('-m',
+                    '--mailing-lists-server',
+                    dest="LIST_SERVER",
+                    help='Server hosting the Fedora Hosted mailing lists.')
 parser.add_argument('-i',
                     '--private-key',
                     dest="PRIVATE_KEY",
@@ -75,6 +80,9 @@ server = get_option_value('SERVER', 'fedorahosted_cli', 'server',
 
 private_key = get_option_value('PRIVATE_KEY', 'fedorahosted_cli',
                                'private_key')
+
+list_server = get_option_value('LIST_SERVER', 'fedorahosted_cli',
+                               'mailing_lists_server')
 
 def run_command_if_allowed(command):
     """
@@ -137,6 +145,35 @@ if args.REQUEST_ID:
     # if not create_fas_group(project_group):
     #     print "ERROR creating FAS group: " + project['scm'] + project['name']
     #     sys.exit(1)
+
+    # Process mailing lists
+    # Process commit-lists here too so we don't have to iterate over these
+    # again later on. Just shove them into an array.
+    # TODO: This can probably move to a separate function.
+    commit_lists = []
+    for list_request in project['list_request']:
+        list_name = list_request['mailing_list']['name']
+
+        if list_request['commit_list']:
+            commit_lists.append(list_name)
+
+            if not list_name.endswith("@lists.fedorahosted.org"):
+                verbose_print("Ignoring non @lists.fedorahosted.org list, it's " +
+                              "likely a remotely hosted commit-announce list.")
+                pass
+
+        command = '/usr/local/bin/fedora-mailing-list-setup %s %s' % (
+            list_name,
+            str(project['owner']))
+
+        print "Creating mailing list via ansible: %s" % list_name
+        print "On hosted-lists*, ansible will run: %s" % command
+
+        if not args.noop:
+            result = ansible.runner.Runner(pattern='hosted-lists*',
+                                           forks=1,
+                                           module_name='command',
+                                           module_args=command).run()
 
     # I wish Python had a switch/case equivalent.
     if project['scm'] == 'git':
