@@ -244,7 +244,8 @@ Fedora Hosted automation system""" % (hosted_request.id,
         message.recipients = [app.config['NOTIFY_ON_REQUEST']]
         message.sender = \
             "Fedora Hosted <sysadmin-hosted-members@fedoraproject.org>"
-        mail.send(message)
+        if not app.config['TESTING']:
+            mail.send(message)
 
         return render_template('completed.html')
 
