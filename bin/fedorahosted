@@ -109,6 +109,17 @@ def run_command_if_allowed(command):
         print "[stderr] %s" % stderr.strip()
 
 
+def run_ansible_command_if_allowed(command, pattern):
+    """Runs a command via ansible if not operating in no-op mode."""
+    print "[ansible] pattern=%s command=%s" % (pattern, command)
+    if args.noop:
+        return
+    return ansible.runner.Runner(pattern=pattern,
+                                 forks=1,
+                                 module_name='command',
+                                 module_args=command).run()
+
+
 def verbose_print(text):
     """Prints a line if we are in verbose mode."""
     if args.verbose:
@@ -171,13 +182,7 @@ if args.REQUEST_ID:
             str(project['owner']))
 
         print "Creating mailing list via ansible: %s" % list_name
-        print "On hosted-lists*, ansible will run: %s" % command
-
-        if not args.noop:
-            result = ansible.runner.Runner(pattern='hosted-lists*',
-                                           forks=1,
-                                           module_name='command',
-                                           module_args=command).run()
+        run_ansible_command_if_allowed(command, 'hosted-lists*')
 
     # I wish Python had a switch/case equivalent.
     if project['scm'] == 'git':
