@@ -33,6 +33,8 @@ This application stores, manages, and processes Fedora Hosted requests.
 * python-flask
 * python-flask-sqlalchemy
 * python-flask-wtf
+* python-flask-mail
+* python-lamson
 * python-sqlalchemy
 * python-wtforms
 * ansible

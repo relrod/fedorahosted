@@ -17,3 +17,8 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
 # This is only used to check of a group exists -- a readonly user works fine.
 FAS_USERNAME = 'someuser'
 FAS_PASSWORD = 'SomeP4ssw0rd!!!'
+
+# Who should get notified of new Fedora Hosted requests?
+# For production, this will probably be:
+# sysadmin-hosted-members@fedoraproject.org.
+NOTIFY_ON_REQUEST = 'whoever@domain.com'

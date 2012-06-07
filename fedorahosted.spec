@@ -18,6 +18,8 @@ Requires:       python-flask-sqlalchemy
 Requires:       python-flask-wtf
 Requires:       python-sqlalchemy
 Requires:       python-wtforms
+Requires:       python-lamson
+Requires:       python-flask-mail
 
 %description
 Stores, manages, and processes Fedora Hosted requests.

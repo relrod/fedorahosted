@@ -10,9 +10,11 @@ from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.properties import RelationshipProperty
 from flaskext.wtf import Form, BooleanField, TextField, SelectField, \
     validators, FieldList, ValidationError
+from flaskext.mail import Mail, Message
 import fedora.client
 
 app = Flask(__name__)
+mail = Mail()
 
 # Handle fedorahosted.main being imported (e.g. by webapp-tests.py)
 # or not.
@@ -26,6 +28,7 @@ except ImportError:
 
 app.config.from_envvar('FEDORAHOSTED_CONFIG')
 db = SQLAlchemy(app)
+mail.init_app(app)
 
 
 class JSONifiable(object):
@@ -220,6 +223,28 @@ def hello():
                     commit_list=True)
                 db.session.add(list_request)
                 db.session.commit()
+
+        # Tell some people that the request has been made.
+        message = Message("New Fedora Hosted project request")
+        message.body = """Members of sysadmin-hosted,
+
+A new Fedora Hosted request, id %s,  has been made.
+To process this request, please do the following:
+
+$ ssh fedorahosted.org
+$ fedorahosted -n -p %s    # No-op. Review this and make sure the output looks
+                          # sane.
+
+$ sudo fedorahosted -p %s  # Actually process the request.
+
+Thanks,
+Fedora Hosted automation system""" % (hosted_request.id,
+                                      hosted_request.id,
+                                      hosted_request.id)
+        message.recipients = [app.config['NOTIFY_ON_REQUEST']]
+        message.sender = \
+            "Fedora Hosted <sysadmin-hosted-members@fedoraproject.org>"
+        mail.send(message)
 
         return render_template('completed.html')
 
