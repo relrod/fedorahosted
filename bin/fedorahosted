@@ -234,3 +234,22 @@ if args.REQUEST_ID:
         do_things()
     elif project['scm'] == 'svn':
         do_things()
+
+    if not args.noop:
+        # If we've made it this far without dying somehow, then poke the server
+        # and tell it to mark the request as completed (the FAS group will
+        # exist already).
+        request = urllib2.urlopen(server + '/mark-completed?id=' + \
+                                      args.REQUEST_ID,
+                                  timeout=5)  # Give up after 5 seconds.
+        response = json.loads(request.read())
+        if 'error' in response:
+            print "*** ERROR ***"
+            print "An error has occurred causing the server to NOT report " \
+                "the project as completed."
+            print "ERROR: %s" % response['error']
+        else:
+            print "*** SUCCESS ***"
+            print "I've informed the fedorahosted web app that the project " \
+                "has been created successfully. It should be sending an " \
+                "email to the person who requested the project soon."
