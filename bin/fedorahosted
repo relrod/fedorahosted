@@ -14,6 +14,7 @@ import subprocess
 import shlex
 import ConfigParser
 import ansible.runner
+from fedora.client import AccountSystem
 
 parser = argparse.ArgumentParser(description='Fedora Hosted Request CLI')
 parser.add_argument('-n',
@@ -34,6 +35,10 @@ parser.add_argument('-s',
                     '--server',
                     dest="SERVER",
                     help='Server hosting the Fedora Hosted Request web app.')
+parser.add_argument('-F',
+                    '--fas-server',
+                    dest="FAS_SERVER",
+                    help='Path to the FAS server (passed to python-fedora).')
 parser.add_argument('-m',
                     '--mailing-lists-server',
                     dest="LIST_SERVER",
@@ -86,6 +91,9 @@ private_key = get_option_value('PRIVATE_KEY', 'fedorahosted_cli',
 list_server = get_option_value('LIST_SERVER', 'fedorahosted_cli',
                                'mailing_lists_server')
 
+fas_server = get_option_value('FAS_SERVER', 'fedorahosted_cli',
+                              'fas_server')
+
 
 def run_command_if_allowed(command):
     """
@@ -120,10 +128,20 @@ def run_ansible_command_if_allowed(command, pattern):
                                  module_args=command).run()
 
 
+def create_symlink(source, destination):
+    print "Creating symlink from %s to %s." % (source, destination)
+    if not args.noop:
+        if os.path.isfile(destination):
+            print "Removing existing destination: %s" % destination
+            os.unlink(destination)
+        os.symlink(source, destination)
+
+
 def verbose_print(text):
     """Prints a line if we are in verbose mode."""
     if args.verbose:
         print text
+
 
 if args.noop:
     print
@@ -155,10 +173,23 @@ if args.REQUEST_ID:
 
     project_group = str(project['scm'] + project['name'])
 
-    # print "Creating FAS group: " + project_group
-    # if not create_fas_group(project_group):
-    #     print "ERROR creating FAS group: " + project['scm'] + project['name']
-    #     sys.exit(1)
+    print "Creating FAS group: " + project_group
+    if not args.noop:
+        fas = AccountSystem(fas_server,
+                            username=processor_username,
+                            password=processor_password)
+        group_creation = fas.create_group(project_group,
+                                          project['pretty_name'],
+                                          str(project['owner']),
+                                          project['scm'])
+
+        if group_creation.tg_flash == None:
+            print "FAS group creation FAILED. :-("
+            sys.exit(1)
+        else:
+            print "FAS group created SUCCESSFULLY. :-)"
+
+    run_command_if_allowed("fasClient -fi")
 
     # Process mailing lists
     # Process commit-lists here too so we don't have to iterate over these
@@ -200,11 +231,7 @@ if args.REQUEST_ID:
             with open("description", "w") as description:
                 description.write(project['description'])
 
-        print "Creating post-update symlink."
-        if not args.noop:
-            if os.path.isfile("hooks/post-update"):
-                os.unlink("hooks/post-update")
-            os.symlink(
+            create_symlink(
                 "/usr/share/git-core/templates/hooks/post-update.sample",
                 "hooks/post-update")
 
@@ -227,8 +254,7 @@ if args.REQUEST_ID:
             run_command_if_allowed(
                 "git config repouri 'http://git.fedorahosted.org/git/?p=" +
                 project['name'] + ".git'")
-            run_command_if_allowed(
-                "ln -svf /usr/local/bin/git-notifier ./hosts/post-receive")
+            create_symlink("/usr/local/bin/git-notifier", "/post-receive")
 
     elif project['scm'] == 'hg':
         do_things()
