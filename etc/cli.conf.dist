@@ -14,3 +14,6 @@ private_key=/root/fedorahosted-lists-id_rsa
 # In doing so, it will run /usr/local/bin/fedora-mailing-list-setup to create
 # any required lists for a request.
 mailing_lists_server=hosted-lists01.fedoraproject.org
+
+# Where does the FAS server list that we should create groups on?
+fas_server=https://admin.fedoraproject.org/accounts/
