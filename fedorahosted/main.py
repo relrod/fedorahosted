@@ -16,16 +16,6 @@ import fedora.client
 app = Flask(__name__)
 mail = Mail()
 
-# Handle fedorahosted.main being imported (e.g. by webapp-tests.py)
-# or not.
-try:
-    app.config.from_object('fedorahosted.default_config')
-except ImportError:
-    try:
-        app.config.from_object('default_config')
-    except ImportError:
-        raise
-
 app.config.from_envvar('FEDORAHOSTED_CONFIG')
 db = SQLAlchemy(app)
 mail.init_app(app)
