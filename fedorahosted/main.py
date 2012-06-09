@@ -278,8 +278,10 @@ def mark_complete():
     project complete if it does. We do this this way so that we don't have to
     send FAS credentials to this app.
     """
-    fas = fedora.client.AccountSystem(username=app.config['FAS_USERNAME'],
-                                      password=app.config['FAS_PASSWORD'])
+    fas = fedora.client.AccountSystem(app.config['FAS_SERVER'],
+                                      username=app.config['FAS_USERNAME'],
+                                      password=app.config['FAS_PASSWORD'],
+                                      insecure=app.config['FAS_INSECURE_SSL'])
     hosted_request = HostedRequest.query.filter_by(id=request.args.get('id'))
     if hosted_request.count() > 0:
         if hosted_request[0].completed == True:
@@ -298,4 +300,4 @@ def mark_complete():
         return jsonify(error="No hosted request with that ID could be found.")
 
 if __name__ == "__main__":
-    app.run(host='127.0.0.1')
+    app.run(host='0.0.0.0')
