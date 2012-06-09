@@ -11,3 +11,5 @@ fenv/
 build/
 fedorahosted.egg-info/
 dist/
+*.rpm
+*.tar.gz
