@@ -261,7 +261,15 @@ if args.REQUEST_ID:
     elif project['scm'] == 'svn':
         do_things()
 
+    # Stuff that occurs after the repo itself is made.
     if not args.noop:
+        # Trac instance?
+        if project['trac']:
+            run_command_if_allowed(
+                "/usr/local/bin/hosted-setup.sh %s %s %s" % (project['name'],
+                                                             project['owner'],
+                                                             project['scm']))
+
         # If we've made it this far without dying somehow, then poke the server
         # and tell it to mark the request as completed (the FAS group will
         # exist already).
