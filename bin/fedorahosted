@@ -171,6 +171,13 @@ if args.REQUEST_ID:
         print "ERROR: %s" % project['error']
         sys.exit(1)
 
+    if project['comments']:
+        print "This project has a comment/special request associated with it."
+        print "-" * 80
+        print project['comments']
+        print "-" * 80
+        raw_input("Press enter to continue...")
+
     project_group = str(project['scm'] + project['name'])
 
     print "Creating FAS group: " + project_group
