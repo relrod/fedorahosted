@@ -9,7 +9,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.properties import RelationshipProperty
 from flaskext.wtf import Form, BooleanField, TextField, SelectField, \
-    validators, FieldList, ValidationError
+    TextAreaField, validators, FieldList, ValidationError
 from flaskext.mail import Mail, Message
 import fedora.client
 
@@ -116,6 +116,7 @@ class HostedRequest(db.Model, JSONifiable):
                                     secondary=ListRequest.__table__,
                                     backref=db.backref('hosted_requests',
                                                        lazy='dynamic'))
+    comments = db.Column(db.String)
 
 
 def valid_mailing_list_name(form, mailing_list):
@@ -157,6 +158,7 @@ class RequestForm(Form):
         TextField('Send commit emails to (full email address)',
                   [valid_email_address]),
         min_entries=1)
+    comments = TextAreaField('Comments/Special Requests')
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -170,7 +172,8 @@ def hello():
             description=form.project_description.data,
             scm=form.project_scm.data,
             trac=form.project_trac.data,
-            owner=form.project_owner.data)
+            owner=form.project_owner.data,
+            comments=form.comments.data)
         db.session.add(hosted_request)
         db.session.commit()
 
