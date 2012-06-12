@@ -112,6 +112,7 @@ class HostedRequest(db.Model, JSONifiable):
     scm = db.Column(db.String(10))
     trac = db.Column(db.Boolean)
     owner = db.Column(db.String(32))  # 32 is the max username length in FAS
+    created = db.Column(db.DateTime, default=datetime.now())
     completed = db.Column(db.DateTime, default=None)
     mailing_lists = db.relationship('MailingList',
                                     secondary=ListRequest.__table__,
@@ -260,6 +261,13 @@ def get_request():
     if hosted_request.count() > 0:
         request_json = hosted_request.first().__json__()
         del request_json['mailing_lists']
+
+        # Flask 0.8 can't handle JSONifying DateTime objects, so we convert it
+        # to a String instead.
+        request_json['created'] = request_json['created'].isoformat()
+        if request_json['completed']:
+            request_json['completed'] = request_json['completed'].isoformat()
+
         return jsonify(request_json)
     else:
         return jsonify(error="No hosted request with that ID could be found.")
