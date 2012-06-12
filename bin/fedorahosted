@@ -137,6 +137,15 @@ def create_symlink(source, destination):
         os.symlink(source, destination)
 
 
+def make_dir_and_cd(directory):
+    """Make a directory and cd into it."""
+    print "Creating and changing to directory: %s" % directory
+    if not args.noop:
+        os.mkdir(directory)
+        os.chdir(directory)
+        print "Working directory is now %s" % os.getcwd()
+
+
 def verbose_print(text):
     """Prints a line if we are in verbose mode."""
     if args.verbose:
@@ -224,13 +233,7 @@ if args.REQUEST_ID:
 
     # I wish Python had a switch/case equivalent.
     if project['scm'] == 'git':
-        print "Creating /git/" + project['name'] + ".git directory."
-        print "Entering /git/" + project['name'] + ".git directory."
-        if not args.noop:
-            os.mkdir("/git/" + project['name'] + ".git")
-            os.chdir("/git/" + project['name'] + ".git")
-            print "Working directory: " + os.getcwd()
-
+        make_dir_and_cd("/git/%s.git" % project['name'])
         run_command_if_allowed("git --bare init --shared=true")
 
         print "Writing 'description' file."
