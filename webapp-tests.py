@@ -177,7 +177,7 @@ class FedoraHostedTestCase(unittest.TestCase):
                 project_owner="testaccount",
                 project_scm="git",
                 project_trac=True), follow_redirects=True)
-        completed = self.app.get('/mark-completed?group=gittestproject&id=1')
+        completed = self.app.get('/mark-completed?id=1')
         parsed_json = json.loads(completed.data)
         assert parsed_json['success'] == "Request marked as completed."
 
