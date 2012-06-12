@@ -267,7 +267,41 @@ if args.REQUEST_ID:
             create_symlink("/usr/local/bin/git-notifier", "/post-receive")
 
     elif project['scm'] == 'hg':
-        do_things()
+        make_dir_and_cd("/hg/%s" % project['name'])
+        run_command_if_allowed("hg init")
+        run_command_if_allowed("find -type d -exec chmod g+s {} ;")
+        run_command_if_allowed("chmod -R g+w .")
+        run_command_if_allowed("chown -R root:%s ." % project_group)
+
+        # Commit lists
+        if len(commit_lists) != 0 and not args.noop:
+            with open(".hg/hgrc", "w") as hgrc:
+                hgrc.write("""
+[extensions]
+hgext.notify =
+
+[hooks]
+changegroup.notify = python:hgext.notify.hook
+
+[email]
+from = admin@fedoraproject.org
+
+[smtp]
+host = localhost
+
+[web]
+baseurl = http://hg.fedorahosted.org/hg
+
+[notify]
+sources = serve push pull bundle
+test = False
+config = /hg/%s/.hg/subscriptions
+maxdiff = -1
+""" % project['name'])
+        with open(".hg/subscriptions", "w") as subscriptions:
+            subscriptions.write("[usersubs]\n")
+            for commit_list in commit_lists:
+                subscriptions.write("%s = *" % commit_list)
     elif project['scm'] == 'svn':
         do_things()
 
