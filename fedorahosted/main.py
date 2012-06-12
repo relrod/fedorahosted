@@ -11,6 +11,7 @@ from sqlalchemy.orm.properties import RelationshipProperty
 from flaskext.wtf import Form, BooleanField, TextField, SelectField, \
     TextAreaField, validators, FieldList, ValidationError
 from flaskext.mail import Mail, Message
+from datetime import datetime
 import fedora.client
 
 app = Flask(__name__)
@@ -111,7 +112,7 @@ class HostedRequest(db.Model, JSONifiable):
     scm = db.Column(db.String(10))
     trac = db.Column(db.Boolean)
     owner = db.Column(db.String(32))  # 32 is the max username length in FAS
-    completed = db.Column(db.Boolean, default=False)
+    completed = db.Column(db.DateTime, default=None)
     mailing_lists = db.relationship('MailingList',
                                     secondary=ListRequest.__table__,
                                     backref=db.backref('hosted_requests',
@@ -248,7 +249,7 @@ Fedora Hosted automation system""" % (hosted_request.id,
 
 @app.route('/pending')
 def pending():
-    requests = HostedRequest.query.filter_by(completed=False)
+    requests = HostedRequest.query.filter_by(completed=None)
     return render_template('pending.html', requests=requests)
 
 
@@ -277,7 +278,7 @@ def mark_complete():
                                       insecure=app.config['FAS_INSECURE_SSL'])
     hosted_request = HostedRequest.query.filter_by(id=request.args.get('id'))
     if hosted_request.count() > 0:
-        if hosted_request[0].completed == True:
+        if hosted_request[0].completed:
             return jsonify(error="Request was already marked as completed.")
 
         group_name = hosted_request[0].scm + hosted_request[0].name
@@ -286,7 +287,7 @@ def mark_complete():
         except:
             return jsonify(error="No such group: " + group_name)
 
-        hosted_request[0].completed = True
+        hosted_request[0].completed = datetime.now()
         db.session.commit()
         return jsonify(success="Request marked as completed.")
     else:
