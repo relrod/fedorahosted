@@ -150,6 +150,7 @@ class RequestForm(Form):
     project_scm = SelectField('SCM',
                               choices=[('git', 'git'),
                                        ('svn', 'svn'),
+                                       ('bzr', 'bzr'),
                                        ('hg', 'hg')])
     project_trac = BooleanField('Trac Instance?')
     project_mailing_lists = FieldList(
