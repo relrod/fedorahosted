@@ -301,7 +301,8 @@ maxdiff = -1
         with open(".hg/subscriptions", "w") as subscriptions:
             subscriptions.write("[usersubs]\n")
             for commit_list in commit_lists:
-                subscriptions.write("%s = *" % commit_list)
+                subscriptions.write("%s = *\n" % commit_list)
+        subscriptions.write("[reposubs]\n")
     elif project['scm'] == 'svn':
         do_things()
 
