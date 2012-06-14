@@ -30,6 +30,11 @@ class FedoraHostedTestCase(unittest.TestCase):
         root = self.app.get('/')
         assert 'Trac Instance?' in root.data
 
+    def test_none_pending(self):
+        """Checks that the pending page identifies no pending requests."""
+        request = self.app.get('/pending')
+        assert 'no pending Fedora Hosted requests' in request.data
+
     def test_form_errors(self):
         """Checks that the form errors when it should"""
         post = self.app.post('/', data=dict(

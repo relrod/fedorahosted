@@ -6,6 +6,7 @@
   Typically, only admins will care about this page.
 </p>
 <hr />
+{% if requests.count() %}
 {% for request in requests %}
 <h2>{{ request.pretty_name }}</h2>
 <table>
@@ -44,11 +45,15 @@
     <td></td>
   </tr>
   <tr>
-    <td><b>Process With</b></td>
-    <td><code>[admin@hosted ~]$ fedorahosted-process --noop -p {{ request.id }}</code></td>
+    <td><b>Process With*</b></td>
+    <td><code>[admin@hosted ~]$ sudo fedorahosted --noop -p {{ request.id }}</code></td>
   </tr>
 </table>
 <hr />
 {% endfor %}
+* remove <code>--noop</code> to <strong>actually</strong> process the request.
+{% else %}
+There are currently no pending Fedora Hosted requests.
+{% endif %}
 {% endblock %}
   
