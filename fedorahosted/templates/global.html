@@ -31,14 +31,15 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a href="/" class="brand" style="padding-top: 4px; padding-bottom: 0;"><img src="{{ url_for('static', filename='fedoralogo.png') }}" alt="Fedora Logo"></a>
           <div class="nav-collapse">
             <ul class="nav">
-              <li><a href="https://fedorahosted.org">Fedora Hosted</a></li>
-              <li><a href="/">New Request</a></li>
+              <li><a href="/"><img class="brand" style="margin-top: -4px; padding-top: 0; padding-bottom: 0;" src="{{ url_for('static', filename='fedoralogo.png') }}" alt="Fedora Logo"></img> New Request</a></li>
               <li><a href="/pending">Pending Requests</a></li>
             </ul>
-          </div><!--/.nav-collapse -->
+            <ul class="nav pull-right">
+              <li><a href="https://fedorahosted.org/">Fedora Hosted</a></li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
