@@ -1,36 +1,72 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <link rel="stylesheet" type="text/css" media="all" href="https://fedoraproject.org/static/css/fedora.css">
-    <link rel="shortcut icon" href="https://fedoraproject.org/static/images/favicon.ico" type="image/vnd.microsoft.icon">
-    <!--[if lt IE 7]>
-    <style type="text/css">
-      #wrapper {
-        height: 100%;
-        overflow: visible!important;
+    <meta charset="utf-8">
+    <title>Fedora Hosted Request System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Request Fedora Hosted project space including a Trac instance, mailing lists, and an SCM repo.">
+    <meta name="author" content="Ricky Elrod, Fedora Project">
+
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px;
       }
     </style>
-    <![endif]-->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='custom.css') }}">
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='mailinglists.js') }}"></script>
-    <title>Fedora Hosted</title>
-  </head>
-  <body>
-    <div id="wrapper">
-      
-      <div id="head">
-        <h1><a href="https://fedorahosted.org/">Fedora Hosted</a></h1>
-      </div>
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap-responsive.css') }}" rel="stylesheet">
 
-      <div class="fhp-constraint">
-        {% block content %}
-        {% endblock %}
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link rel="shortcut icon" href="https://fedoraproject.org/static/images/favicon.ico" type="image/vnd.microsoft.icon">
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a href="/" class="brand" style="padding-top: 2px; padding-bottom: 0;"><img src="{{ url_for('static', filename='fedoralogo.png') }}" alt="Fedora Logo"></a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li><a href="https://fedorahosted.org">Fedora Hosted</a></li>
+              <li><a href="/">New Request</a></li>
+              <li><a href="/pending">Pending Requests</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
       </div>
     </div>
 
+    <div class="container">
+
+      {% block content %}{% endblock %}
+
+    </div> <!-- /container -->
+
+    <script src="{{ url_for('static', filename='bootstrap/js/jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-transition.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-alert.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-modal.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-dropdown.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-scrollspy.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-tab.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-tooltip.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-popover.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-button.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-collapse.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-carousel.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-typeahead.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='mailinglists.js') }}"></script>
+  </body>
+</html>
     
-    <div id="bottom">
+<!--    <div id="bottom">
       <div id="footer">
         <p class="copy">
           &copy; 2012 Red Hat, Inc. and others.  Please send any comments or corrections to the <a href="mailto:webmaster@fedoraproject.org">websites team</a>.
@@ -46,4 +82,4 @@
       </div>
     </div>
   </body>
-</html>
+</html>-->
