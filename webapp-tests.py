@@ -50,7 +50,7 @@ class FedoraHostedTestCase(unittest.TestCase):
                 project_owner="testaccount",
                 project_scm="git",
                 project_trac=True), follow_redirects=True)
-        assert 'Your request has been received.' in post.data
+        assert 'Your request has been received!' in post.data
 
     def test_show_pending(self):
         """Checks that a list of pending requests can be generated."""
