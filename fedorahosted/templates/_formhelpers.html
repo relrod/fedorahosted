@@ -1,7 +1,7 @@
 {% macro render_field(field) %}
-<tr id="tr_{{ field.id }}">
-  <td>{{ field.label }}</td>
-  <td>
+<div class="control-group {% if field.errors %}error{% endif %}" id="tr_{{ field.id }}">
+  {{ field.label(class="control-label") }}
+  <div class="controls">
     {{ field(**kwargs)|safe }}
     {% if field.errors %}
     <ul class="errors">
@@ -9,7 +9,7 @@
       <li>{{ error }}</li>
       {% endfor %}
     </ul>
-    {% endif %}
-  </td>
-</tr>
+    {% endif %}    
+  </div>
+</div>
 {% endmacro %}

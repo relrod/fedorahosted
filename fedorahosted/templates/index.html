@@ -1,52 +1,37 @@
 {% extends "global.html" %}
 {% block content %}
-<h1>Fedora Hosted Project Request</h1>
 
-<p>
-  Hi there, and welcome to the <a href="https://fedorahosted.org/">Fedora Hosted</a> project request system..
-</p>
+<div class="span6 offset3">
+  {% from "_formhelpers.html" import render_field %}
+  <form action="" method="post" class="form-horizontal">
+    <div class="well">
+      {{ form.hidden_tag() }}
+      <fieldset>
+        <legend>New Fedora Hosted Project Request</legend>
+        {{ render_field(form.project_name) }}
+        {{ render_field(form.project_pretty_name) }}
+        {{ render_field(form.project_description) }}
+        {{ render_field(form.project_scm) }}
+        {{ render_field(form.project_trac) }}
+        {{ render_field(form.project_owner) }}
 
-<p>
-  To request space for your open source project, please fill out the form below, in its entirety.
-</p>
+        {# Regular mailing lists #}
+        <a href="#" class="pull-right" id="moar_lists">Add Mailing List Field</a>
+        {% for field in form.project_mailing_lists %}
+        {{ render_field(field, class="ml_field") }}
+        {% endfor %}
 
-<hr />
+        {# Commit lists #}
+        <a href="#" class="pull-right" id="moar_commit_lists">Add Commit List Field</a>
+        {% for field in form.project_commit_lists %}
+        {{ render_field(field, class="cl_field") }}
+        {% endfor %}
 
-{% from "_formhelpers.html" import render_field %}
-<form action="" method="post">
-  {{ form.hidden_tag() }}
-  <table>
-    {{ render_field(form.project_name) }}
-    {{ render_field(form.project_pretty_name) }}
-    {{ render_field(form.project_description) }}
-    {{ render_field(form.project_scm) }}
-    {{ render_field(form.project_trac) }}
-    {{ render_field(form.project_owner) }}
+        {{ render_field(form.comments) }}
 
-    {# Regular mailing lists #}
-    {% for field in form.project_mailing_lists %}
-    {{ render_field(field, class="ml_field") }}
-    {% endfor %}
-    <tr id="tr_moar_lists">
-      <td>More Mailing Lists?</td>
-      <td><a href="#" id="moar_lists">Add Mailing List Field</a></td>
-    </tr>
-
-    {# Commit lists #}
-    {% for field in form.project_commit_lists %}
-    {{ render_field(field, class="cl_field") }}
-    {% endfor %}
-    <tr id="tr_moar_commit_lists">
-      <td>More Commit Lists?</td>
-      <td><a href="#" id="moar_commit_lists">Add Commit List Field</a></td>
-    </tr>
-
-    {{ render_field(form.comments) }}
-
-    <tr>
-      <td>Submit</td>
-      <td><button type="submit">Submit</button></td>
-    </tr>
-  </table>
-</form>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </fieldset>
+    </div>
+  </form>
+</div>
 {% endblock %}

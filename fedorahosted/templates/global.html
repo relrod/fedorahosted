@@ -48,7 +48,7 @@
 
       {% block content %}{% endblock %}
 
-      <hr />
+      <hr style="clear: both;" />
       
       <footer class="footer">
         <div class="pull-right">
@@ -59,20 +59,7 @@
 
       </footer>
     </div> <!-- /container -->
-
-    <script src="{{ url_for('static', filename='bootstrap/js/jquery.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-transition.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-alert.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-modal.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-dropdown.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-scrollspy.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-tab.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-tooltip.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-popover.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-button.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-collapse.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-carousel.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/jbootstrap-typeahead.js') }}"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='mailinglists.js') }}"></script>
   </body>
 </html>
