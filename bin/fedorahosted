@@ -180,6 +180,16 @@ if args.REQUEST_ID:
         print "ERROR: %s" % project['error']
         sys.exit(1)
 
+    if project['trac'] == 'agilo' and 'agilo' not in socket.gethostname():
+        print "WARNING: The project requested a Trac instance with Agilo " \
+            "and you're processing it on a host not configured for Agilo " \
+            "Trac instances. If you're sure this is okay, type 'yes'. " \
+            "Anything else will quit."
+        if args.noop:
+            print "> yes (skipping because of no-op mode)."
+    elif raw_input("> ") != "yes":
+        sys.exit(1)
+
     if project['comments']:
         print "This project has a comment/special request associated with it."
         print "-" * 80
@@ -309,7 +319,7 @@ maxdiff = -1
     # Stuff that occurs after the repo itself is made.
     if not args.noop:
         # Trac instance?
-        if project['trac']:
+        if project['trac'] != 'no':
             run_command_if_allowed(
                 "/usr/local/bin/hosted-setup.sh %s %s %s" % (project['name'],
                                                              project['owner'],

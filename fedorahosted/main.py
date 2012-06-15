@@ -110,7 +110,7 @@ class HostedRequest(db.Model, JSONifiable):
     pretty_name = db.Column(db.String(150), unique=True)
     description = db.Column(db.String(255))
     scm = db.Column(db.String(10))
-    trac = db.Column(db.Boolean)
+    trac = db.Column(db.String(5))
     owner = db.Column(db.String(32))  # 32 is the max username length in FAS
     created = db.Column(db.DateTime, default=datetime.now())
     completed = db.Column(db.DateTime, default=None)
@@ -152,7 +152,10 @@ class RequestForm(Form):
                                        ('svn', 'svn'),
                                        ('bzr', 'bzr'),
                                        ('hg', 'hg')])
-    project_trac = BooleanField('Trac Instance?')
+    project_trac = SelectField('Trac Instance?',
+                              choices=[('no', 'No'),
+                                       ('yes', 'Yes'),
+                                       ('agilo', 'Yes w/ Agilo')])
     project_mailing_lists = FieldList(
         TextField('Mailing List (must start with the project name)',
                   [validators.Length(max=64), valid_mailing_list_name]),

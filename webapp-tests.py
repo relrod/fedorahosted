@@ -43,7 +43,7 @@ class FedoraHostedTestCase(unittest.TestCase):
                 project_description="",  # Should error.
                 project_owner="testaccount",
                 project_scm="git",
-                project_trac=True), follow_redirects=True)
+                project_trac="yes"), follow_redirects=True)
         assert 'Field must be between 1 and' in post.data
 
     def test_form_success(self):
@@ -54,7 +54,7 @@ class FedoraHostedTestCase(unittest.TestCase):
                 project_description="This project does X and Y and Z too!",
                 project_owner="testaccount",
                 project_scm="git",
-                project_trac=True), follow_redirects=True)
+                project_trac="yes"), follow_redirects=True)
         assert 'Your request has been received!' in post.data
 
     def test_show_pending(self):
@@ -65,7 +65,7 @@ class FedoraHostedTestCase(unittest.TestCase):
                 project_description="This project does X and Y and Z too!",
                 project_owner="testaccount",
                 project_scm="git",
-                project_trac=True), follow_redirects=True)
+                project_trac="yes"), follow_redirects=True)
         pending = self.app.get('/pending')
         assert 'A test project' in pending.data
 
@@ -77,7 +77,7 @@ class FedoraHostedTestCase(unittest.TestCase):
                 project_description="This project does X and Y and Z too!",
                 project_owner="testaccount",
                 project_scm="git",
-                project_trac=True), follow_redirects=True)
+                project_trac="yes"), follow_redirects=True)
         hosting_request = self.app.get('/getrequest?id=1')
         okay = False
         try:
@@ -97,7 +97,7 @@ class FedoraHostedTestCase(unittest.TestCase):
                 "project_description": "This project does X and Y and Z too!",
                 "project_owner": "testaccount",
                 "project_scm": "git",
-                "project_trac": True,
+                "project_trac": "yes",
                 "project_mailing_lists-0": "test-list",
         }, follow_redirects=True)
         hosting_request = self.app.get('/getrequest?id=1')
@@ -120,7 +120,7 @@ class FedoraHostedTestCase(unittest.TestCase):
                 "project_description": "This project does X and Y and Z too!",
                 "project_owner": "testaccount",
                 "project_scm": "git",
-                "project_trac": True,
+                "project_trac": "yes",
                 "project_mailing_lists-0": "notatest-list",
         }, follow_redirects=True)
 
@@ -134,7 +134,7 @@ class FedoraHostedTestCase(unittest.TestCase):
                 "project_description": "This project does X and Y and Z too!",
                 "project_owner": "testaccount",
                 "project_scm": "git",
-                "project_trac": True,
+                "project_trac": "yes",
                 "project_mailing_lists-0": "test-list",
                 "project_mailing_lists-1": "notatest-list",
         }, follow_redirects=True)
@@ -149,7 +149,7 @@ class FedoraHostedTestCase(unittest.TestCase):
                 "project_description": "This project does X and Y and Z too!",
                 "project_owner": "testaccount",
                 "project_scm": "git",
-                "project_trac": True,
+                "project_trac": "yes",
                 "project_mailing_lists-0": "test-list",
                 "project_mailing_lists-1": "test-foo",
         }, follow_redirects=True)
@@ -181,7 +181,7 @@ class FedoraHostedTestCase(unittest.TestCase):
                 project_description="This project does X and Y and Z too!",
                 project_owner="testaccount",
                 project_scm="git",
-                project_trac=True), follow_redirects=True)
+                project_trac="yes"), follow_redirects=True)
         completed = self.app.get('/mark-completed?id=1')
         parsed_json = json.loads(completed.data)
         assert parsed_json['success'] == "Request marked as completed."
@@ -194,7 +194,7 @@ class FedoraHostedTestCase(unittest.TestCase):
                 project_description="This project does X and Y and Z too!",
                 project_owner="testaccount",
                 project_scm="git",
-                project_trac=True), follow_redirects=True)
+                project_trac="yes"), follow_redirects=True)
         completed = self.app.get('/mark-completed?id=1')
         completed2 = self.app.get('/mark-completed?id=1')
         parsed_json = json.loads(completed2.data)
