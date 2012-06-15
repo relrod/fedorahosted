@@ -6,10 +6,10 @@
   Typically, only admins will care about this page.
 </p>
 <hr />
-{% if requests.count() %}
+{% if requests.count() > 0 %}
 {% for request in requests %}
 <h2>{{ request.pretty_name }}</h2>
-<table>
+<table class="table table-striped table-bordered table-condensed">
   <tr>
     <td>Name</td>
     <td>{{ request.name }}</td>
