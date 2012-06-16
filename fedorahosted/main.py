@@ -167,6 +167,18 @@ class RequestForm(Form):
     comments = TextAreaField('Comments/Special Requests')
 
 
+def scm_push_instructions(project):
+    # TODO: Fix bzr branch name (???)
+    if project.scm == 'git':
+        return "git push ssh://git.fedorahosted.org/git/%s.git/ master" % (
+            project.name)
+    elif project.scm == 'bzr':
+        return "bzr branch bzr://bzr.fedorahosted.org/bzr/%s/[branch]" % (
+            project.name)
+    elif project.scm == 'svn':
+        return "svn co svn+ssh://svn.fedorahosted.org/svn/%s" % project.name
+
+
 @app.route('/', methods=['POST', 'GET'])
 def hello():
     form = RequestForm()
@@ -290,17 +302,51 @@ def mark_complete():
                                       insecure=app.config['FAS_INSECURE_SSL'])
     hosted_request = HostedRequest.query.filter_by(id=request.args.get('id'))
     if hosted_request.count() > 0:
-        if hosted_request[0].completed:
+        project = hosted_request[0]
+        if project.completed:
             return jsonify(error="Request was already marked as completed.")
 
-        group_name = hosted_request[0].scm + hosted_request[0].name
+        group_name = project.scm + project.name
         try:
             group = fas.group_by_name(group_name)
         except:
             return jsonify(error="No such group: " + group_name)
 
-        hosted_request[0].completed = datetime.now()
+        project.completed = datetime.now()
         db.session.commit()
+        message = Message("Your Fedora Hosted request has been processed")
+        message.body = """Hi there,
+
+You're receiving this message because the Fedora Hosted project:
+  %s
+has been set up.
+
+To access to your new repository, do the following:
+  $ %s
+
+If you've requested a Trac instance, you can visit it at:
+  https://fedorahosted.org/%s
+
+If you've requested any mailing lists, you should have received separate
+emails which contain instructions on how to administrate them.
+
+Sincerely,
+Fedora Hosted""" % (
+            project.name,
+            scm_push_instructions(project),
+            project.name)
+
+        message.sender = \
+            "Fedora Hosted <sysadmin-hosted-members@fedoraproject.org>"
+
+        if 'PROJECT_OWNER_EMAIL_OVERRIDE' in app.config:
+            message.recipients = [app.config['PROJECT_OWNER_EMAIL_OVERRIDE']]
+        else:
+            message.recipients = ["%s@fedoraproject.org" % project.owner]
+
+        if not app.config['TESTING']:
+            mail.send(message)
+
         return jsonify(success="Request marked as completed.")
     else:
         return jsonify(error="No hosted request with that ID could be found.")

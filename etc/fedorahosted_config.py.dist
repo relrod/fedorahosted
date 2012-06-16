@@ -23,4 +23,8 @@ FAS_PASSWORD     = 'SomeP4ssw0rd!!!'
 # Who should get notified of new Fedora Hosted requests?
 # For production, this will probably be:
 # sysadmin-hosted-members@fedoraproject.org.
-NOTIFY_ON_REQUEST = 'whoever@domain.com'
+NOTIFY_ON_REQUEST = 'whoever@example.com'
+
+# Override who gets the "your project has been set up" email.
+# Leave this commented out unless you're developing/debugging.
+PROJECT_OWNER_EMAIL_OVERRIDE = 'something@example.com'
