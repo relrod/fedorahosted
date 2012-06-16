@@ -313,8 +313,12 @@ maxdiff = -1
             for commit_list in commit_lists:
                 subscriptions.write("%s = *\n" % commit_list)
         subscriptions.write("[reposubs]\n")
-    elif project['scm'] == 'svn':
-        do_things()
+    elif project['scm'] == 'bzr':
+        make_dir_and_cd("/srv/bzr/%s" % project['name'])
+        run_command_if_allowed("bzr init-repo --no-trees .")
+        run_command_if_allowed("find -type d -exec chmod g+s {} ;")
+        run_command_if_allowed("chmod -R g+w .")
+        run_command_if_allowed("chown -R root:%s ." % project_group)
 
     # Stuff that occurs after the repo itself is made.
     if not args.noop:
