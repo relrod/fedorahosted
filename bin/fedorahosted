@@ -308,17 +308,30 @@ test = False
 config = /hg/%s/.hg/subscriptions
 maxdiff = -1
 """ % project['name'])
-        with open(".hg/subscriptions", "w") as subscriptions:
-            subscriptions.write("[usersubs]\n")
+        with open(".hg/subscriptions", "w") as f:
+            f.write("[usersubs]\n")
             for commit_list in commit_lists:
-                subscriptions.write("%s = *\n" % commit_list)
-        subscriptions.write("[reposubs]\n")
+                f.write("%s = *\n" % commit_list)
+        f.write("[reposubs]\n")
     elif project['scm'] == 'bzr':
         make_dir_and_cd("/srv/bzr/%s" % project['name'])
         run_command_if_allowed("bzr init-repo --no-trees .")
         run_command_if_allowed("find -type d -exec chmod g+s {} ;")
         run_command_if_allowed("chmod -R g+w .")
         run_command_if_allowed("chown -R root:%s ." % project_group)
+    elif project['scm'] == 'svn':
+        make_dir_and_cd("/svn/%s" % project['name'])
+        run_command_if_allowed("svnadmin create .")
+        run_command_if_allowed("chgrp -R %s ." % project_group)
+        run_command_if_allowed("chmod -R g+w .")
+        run_command_if_allowed("find -type d -exec chmod g+s {} ;")
+
+        # Commit lists
+        if len(commit_lists) != 0 and not args.noop:
+            with open("commit-list", "w") as f:
+                f.write(','.join(commit_lists))
+            create_symlink("/usr/bin/fedora-svn-commit-mail-hook",
+                           "./hooks/post-commit")
 
     # Stuff that occurs after the repo itself is made.
     if not args.noop:
