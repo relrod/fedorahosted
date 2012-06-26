@@ -6,7 +6,7 @@ setup(
     long_description=__doc__,
     packages=['fedorahosted'],
     scripts=[
-      'bin/fedorahosted',
+        'bin/fedorahosted',
     ],
     include_package_data=True,
     zip_safe=False,
