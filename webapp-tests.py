@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # Fedora Hosted Processor - Tests
+# (c) 2012 Red Hat, Inc.
 # Ricky Elrod <codeblock@fedoraproject.org>
 # GPLv2+
 
