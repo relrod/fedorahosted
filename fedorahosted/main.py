@@ -125,17 +125,17 @@ def valid_mailing_list_name(form, mailing_list):
     if not mailing_list.data:
         return
     if not mailing_list.data.startswith(form.project_name.data + '-'):
-        raise ValidationError("Mailing lists must start with the project " \
-                                  "name and a dash, e.g. '%s-users'" % (
-                form.project_name.data))
+        raise ValidationError("Mailing lists must start with the project "
+                              "name and a dash, e.g. '%s-users'" % (
+                              form.project_name.data))
 
 
 def valid_email_address(form, commit_list):
     if not commit_list.data:
         return
     if not '@' in commit_list.data:
-        raise ValidationError("Commit list must be a full email-address " \
-                                  "(e.g. contain a '@' sign).")
+        raise ValidationError("Commit list must be a full email-address "
+                              "(e.g. contain a '@' sign).")
 
 
 class RequestForm(Form):
@@ -153,9 +153,9 @@ class RequestForm(Form):
                                        ('bzr', 'bzr'),
                                        ('hg', 'hg')])
     project_trac = SelectField('Trac Instance?',
-                              choices=[('no', 'No'),
-                                       ('yes', 'Yes'),
-                                       ('agilo', 'Yes w/ Agilo')])
+                               choices=[('no', 'No'),
+                                        ('yes', 'Yes'),
+                                        ('agilo', 'Yes w/ Agilo')])
     project_mailing_lists = FieldList(
         TextField('Mailing List (must start with the project name)',
                   [validators.Length(max=64), valid_mailing_list_name]),
