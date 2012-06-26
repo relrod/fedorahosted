@@ -38,46 +38,46 @@ class FedoraHostedTestCase(unittest.TestCase):
     def test_form_errors(self):
         """Checks that the form errors when it should"""
         post = self.app.post('/', data=dict(
-                project_name="test",
-                project_pretty_name="A test project",
-                project_description="",  # Should error.
-                project_owner="testaccount",
-                project_scm="git",
-                project_trac="yes"), follow_redirects=True)
+            project_name="test",
+            project_pretty_name="A test project",
+            project_description="",  # Should error.
+            project_owner="testaccount",
+            project_scm="git",
+            project_trac="yes"), follow_redirects=True)
         assert 'Field must be between 1 and' in post.data
 
     def test_form_success(self):
         """Checks that requests can be made successfully."""
         post = self.app.post('/', data=dict(
-                project_name="test",
-                project_pretty_name="A test project",
-                project_description="This project does X and Y and Z too!",
-                project_owner="testaccount",
-                project_scm="git",
-                project_trac="yes"), follow_redirects=True)
+            project_name="test",
+            project_pretty_name="A test project",
+            project_description="This project does X and Y and Z too!",
+            project_owner="testaccount",
+            project_scm="git",
+            project_trac="yes"), follow_redirects=True)
         assert 'Your request has been received!' in post.data
 
     def test_show_pending(self):
         """Checks that a list of pending requests can be generated."""
         self.app.post('/', data=dict(
-                project_name="test",
-                project_pretty_name="A test project",
-                project_description="This project does X and Y and Z too!",
-                project_owner="testaccount",
-                project_scm="git",
-                project_trac="yes"), follow_redirects=True)
+            project_name="test",
+            project_pretty_name="A test project",
+            project_description="This project does X and Y and Z too!",
+            project_owner="testaccount",
+            project_scm="git",
+            project_trac="yes"), follow_redirects=True)
         pending = self.app.get('/pending')
         assert 'A test project' in pending.data
 
     def test_jsonify_existing(self):
         """Checks that JSONifying existing requests works."""
         self.app.post('/', data=dict(
-                project_name="test",
-                project_pretty_name="A test project",
-                project_description="This project does X and Y and Z too!",
-                project_owner="testaccount",
-                project_scm="git",
-                project_trac="yes"), follow_redirects=True)
+            project_name="test",
+            project_pretty_name="A test project",
+            project_description="This project does X and Y and Z too!",
+            project_owner="testaccount",
+            project_scm="git",
+            project_trac="yes"), follow_redirects=True)
         hosting_request = self.app.get('/getrequest?id=1')
         okay = False
         try:
@@ -92,13 +92,13 @@ class FedoraHostedTestCase(unittest.TestCase):
     def test_jsonify_mailing_list(self):
         """Checks that JSONifying works with a mailing list."""
         self.app.post('/', data={
-                "project_name": "test",
-                "project_pretty_name": "A test project",
-                "project_description": "This project does X and Y and Z too!",
-                "project_owner": "testaccount",
-                "project_scm": "git",
-                "project_trac": "yes",
-                "project_mailing_lists-0": "test-list",
+            "project_name": "test",
+            "project_pretty_name": "A test project",
+            "project_description": "This project does X and Y and Z too!",
+            "project_owner": "testaccount",
+            "project_scm": "git",
+            "project_trac": "yes",
+            "project_mailing_lists-0": "test-list",
         }, follow_redirects=True)
         hosting_request = self.app.get('/getrequest?id=1')
 
@@ -115,43 +115,43 @@ class FedoraHostedTestCase(unittest.TestCase):
     def test_require_valid_mailing_list_name(self):
         """Checks that a valid mailing list name is required."""
         response = self.app.post('/', data={
-                "project_name": "test",
-                "project_pretty_name": "A test project",
-                "project_description": "This project does X and Y and Z too!",
-                "project_owner": "testaccount",
-                "project_scm": "git",
-                "project_trac": "yes",
-                "project_mailing_lists-0": "notatest-list",
+            "project_name": "test",
+            "project_pretty_name": "A test project",
+            "project_description": "This project does X and Y and Z too!",
+            "project_owner": "testaccount",
+            "project_scm": "git",
+            "project_trac": "yes",
+            "project_mailing_lists-0": "notatest-list",
         }, follow_redirects=True)
 
         self.assertRegexpMatches(response.data,
-                                 "Mailing lists must start with the project" \
-                                     " name")
+                                 "Mailing lists must start with the project"
+                                 " name")
 
         response = self.app.post('/', data={
-                "project_name": "test",
-                "project_pretty_name": "A test project",
-                "project_description": "This project does X and Y and Z too!",
-                "project_owner": "testaccount",
-                "project_scm": "git",
-                "project_trac": "yes",
-                "project_mailing_lists-0": "test-list",
-                "project_mailing_lists-1": "notatest-list",
+            "project_name": "test",
+            "project_pretty_name": "A test project",
+            "project_description": "This project does X and Y and Z too!",
+            "project_owner": "testaccount",
+            "project_scm": "git",
+            "project_trac": "yes",
+            "project_mailing_lists-0": "test-list",
+            "project_mailing_lists-1": "notatest-list",
         }, follow_redirects=True)
 
         self.assertRegexpMatches(response.data,
-                                 "Mailing lists must start with the project" \
-                                     " name")
+                                 "Mailing lists must start with the project"
+                                 " name")
 
         response = self.app.post('/', data={
-                "project_name": "test",
-                "project_pretty_name": "A test project",
-                "project_description": "This project does X and Y and Z too!",
-                "project_owner": "testaccount",
-                "project_scm": "git",
-                "project_trac": "yes",
-                "project_mailing_lists-0": "test-list",
-                "project_mailing_lists-1": "test-foo",
+            "project_name": "test",
+            "project_pretty_name": "A test project",
+            "project_description": "This project does X and Y and Z too!",
+            "project_owner": "testaccount",
+            "project_scm": "git",
+            "project_trac": "yes",
+            "project_mailing_lists-0": "test-list",
+            "project_mailing_lists-1": "test-foo",
         }, follow_redirects=True)
 
         self.assertRegexpMatches(response.data,
@@ -176,12 +176,12 @@ class FedoraHostedTestCase(unittest.TestCase):
         exists.
         """
         self.app.post('/', data=dict(
-                project_name="testproject",
-                project_pretty_name="A test project",
-                project_description="This project does X and Y and Z too!",
-                project_owner="testaccount",
-                project_scm="git",
-                project_trac="yes"), follow_redirects=True)
+            project_name="testproject",
+            project_pretty_name="A test project",
+            project_description="This project does X and Y and Z too!",
+            project_owner="testaccount",
+            project_scm="git",
+            project_trac="yes"), follow_redirects=True)
         completed = self.app.get('/mark-completed?id=1')
         parsed_json = json.loads(completed.data)
         assert parsed_json['success'] == "Request marked as completed."
@@ -189,12 +189,12 @@ class FedoraHostedTestCase(unittest.TestCase):
     def test_already_marked_completed(self):
         """Checks that we properly handle already-completed requests."""
         self.app.post('/', data=dict(
-                project_name="testproject",
-                project_pretty_name="A test project",
-                project_description="This project does X and Y and Z too!",
-                project_owner="testaccount",
-                project_scm="git",
-                project_trac="yes"), follow_redirects=True)
+            project_name="testproject",
+            project_pretty_name="A test project",
+            project_description="This project does X and Y and Z too!",
+            project_owner="testaccount",
+            project_scm="git",
+            project_trac="yes"), follow_redirects=True)
         completed = self.app.get('/mark-completed?id=1')
         completed2 = self.app.get('/mark-completed?id=1')
         parsed_json = json.loads(completed2.data)
