@@ -3,7 +3,7 @@
 # Ricky Elrod <codeblock@fedoraproject.org>
 # GPLv2+
 
-import argparse
+from optparse import OptionParser
 import urllib2
 import json
 import getpass
@@ -16,56 +16,56 @@ import ConfigParser
 import ansible.runner
 from fedora.client import AccountSystem
 
-parser = argparse.ArgumentParser(description='Fedora Hosted Request CLI')
-parser.add_argument('-n',
-                    '--noop',
-                    action='store_true',
-                    help="Don't actually execute any commands.")
-parser.add_argument('-v',
-                    '--verbose',
-                    action='store_true',
-                    help="Be verbose, for debugging.")
-parser.add_argument('-p',
-                    '--process',
-                    dest="REQUEST_ID",
-                    help='Process a Fedora Hosted request (for admins).')
-parser.add_argument('-r',
-                    help='Request a new Fedora Hosted project.')
-parser.add_argument('-s',
-                    '--server',
-                    dest="SERVER",
-                    help='Server hosting the Fedora Hosted Request web app.')
-parser.add_argument('-F',
-                    '--fas-server',
-                    dest="FAS_SERVER",
-                    help='Path to the FAS server (passed to python-fedora).')
-parser.add_argument('-m',
-                    '--mailing-lists-server',
-                    dest="LIST_SERVER",
-                    help='Server hosting the Fedora Hosted mailing lists.')
-parser.add_argument('-i',
-                    '--private-key',
-                    dest="PRIVATE_KEY",
-                    help='The private SSH key we should authenticate to' \
-                        'mailing list servers with.')
-parser.add_argument('-c',
-                    '--config',
-                    dest="CONFIG",
-                    default="/etc/fedorahosted/cli.conf",
-                    help='A configuration file to use.')
-args = parser.parse_args()
+parser = OptionParser(description='Fedora Hosted Request CLI')
+parser.add_option('-n',
+                  '--noop',
+                  action='store_true',
+                  help="Don't actually execute any commands.")
+parser.add_option('-v',
+                  '--verbose',
+                  action='store_true',
+                  help="Be verbose, for debugging.")
+parser.add_option('-p',
+                  '--process',
+                  dest="REQUEST_ID",
+                  help='Process a Fedora Hosted request (for admins).')
+parser.add_option('-r',
+                  help='Request a new Fedora Hosted project.')
+parser.add_option('-s',
+                  '--server',
+                  dest="SERVER",
+                  help='Server hosting the Fedora Hosted Request web app.')
+parser.add_option('-F',
+                  '--fas-server',
+                  dest="FAS_SERVER",
+                  help='Path to the FAS server (passed to python-fedora).')
+parser.add_option('-m',
+                  '--mailing-lists-server',
+                  dest="LIST_SERVER",
+                  help='Server hosting the Fedora Hosted mailing lists.')
+parser.add_option('-i',
+                  '--private-key',
+                  dest="PRIVATE_KEY",
+                  help='The private SSH key we should authenticate to'
+                  'mailing list servers with.')
+parser.add_option('-c',
+                  '--config',
+                  dest="CONFIG",
+                  default="/etc/fedorahosted/cli.conf",
+                  help='A configuration file to use.')
+(options, args) = parser.parse_args()
 
 # Handle the config file here, if it exists.
 config = None
-if os.path.exists(args.CONFIG):
+if os.path.exists(options.CONFIG):
     config = ConfigParser.ConfigParser()
-    config.read(args.CONFIG)
+    config.read(options.CONFIG)
 
 
 def get_option_value(argname, section, key, die=True, default=None,
                      warning=None):
-    if argname in args.__dict__.keys() and args.__dict__[argname] != None:
-        return args.__dict__[argname]
+    if argname in options.__dict__.keys() and options.__dict__[argname]:
+        return options.__dict__[argname]
     elif config:
         return config.get(section, key)
     elif default:
@@ -98,13 +98,13 @@ fas_server = get_option_value('FAS_SERVER', 'fedorahosted_cli',
 def run_command_if_allowed(command):
     """
     Runs a system command and prints the result.
-    "allowed" is determined by the state of args.noop.
+    "allowed" is determined by the state of options.noop.
     """
     print "[root@%s %s]# %s" % (
         socket.gethostname(),
         os.getcwd(),
         command)
-    if args.noop:
+    if options.noop:
         return
     escaped = shlex.split(command)
     cmd = subprocess.Popen(escaped,
@@ -120,7 +120,7 @@ def run_command_if_allowed(command):
 def run_ansible_command_if_allowed(command, pattern):
     """Runs a command via ansible if not operating in no-op mode."""
     print "[ansible] pattern=%s command=%s" % (pattern, command)
-    if args.noop:
+    if options.noop:
         return
     return ansible.runner.Runner(pattern=pattern,
                                  forks=1,
@@ -130,7 +130,7 @@ def run_ansible_command_if_allowed(command, pattern):
 
 def create_symlink(source, destination):
     print "Creating symlink from %s to %s." % (source, destination)
-    if not args.noop:
+    if not options.noop:
         if os.path.isfile(destination):
             print "Removing existing destination: %s" % destination
             os.unlink(destination)
@@ -140,7 +140,7 @@ def create_symlink(source, destination):
 def make_dir_and_cd(directory):
     """Make a directory and cd into it."""
     print "Creating and changing to directory: %s" % directory
-    if not args.noop:
+    if not options.noop:
         os.mkdir(directory)
         os.chdir(directory)
         print "Working directory is now %s" % os.getcwd()
@@ -148,19 +148,19 @@ def make_dir_and_cd(directory):
 
 def verbose_print(text):
     """Prints a line if we are in verbose mode."""
-    if args.verbose:
+    if options.verbose:
         print text
 
 
-if args.noop:
+if options.noop:
     print
     print "*** Running in NO-OP mode, not executing any commands. ***"
     print "*** Not asking for FAS info, no FAS communication will happen. ***"
     print "If everything looks good below, run without -n/--noop"
     print
 
-if args.REQUEST_ID:
-    if not args.noop:
+if options.REQUEST_ID:
+    if not options.noop:
         user = getpass.getuser()
         if user != "root":
             print "Processing requests should be run as root."
@@ -170,7 +170,7 @@ if args.REQUEST_ID:
         processor_password = getpass.getpass("FAS password: ")
 
     request = urllib2.urlopen(server + '/getrequest?id=' +
-                              args.REQUEST_ID,
+                              options.REQUEST_ID,
                               timeout=5)  # Give up after 5 seconds.
     project = json.loads(request.read())
 
@@ -185,10 +185,10 @@ if args.REQUEST_ID:
             "and you're processing it on a host not configured for Agilo " \
             "Trac instances. If you're sure this is okay, type 'yes'. " \
             "Anything else will quit."
-        if args.noop:
+        if options.noop:
             print "> yes (skipping because of no-op mode)."
-    elif raw_input("> ") != "yes":
-        sys.exit(1)
+        elif raw_input("> ") != "yes":
+            sys.exit(1)
 
     if project['comments']:
         print "This project has a comment/special request associated with it."
@@ -200,7 +200,7 @@ if args.REQUEST_ID:
     project_group = str(project['scm'] + project['name'])
 
     print "Creating FAS group: " + project_group
-    if not args.noop:
+    if not options.noop:
         fas = AccountSystem(fas_server,
                             username=processor_username,
                             password=processor_password)
@@ -209,7 +209,7 @@ if args.REQUEST_ID:
                                           str(project['owner']),
                                           project['scm'])
 
-        if group_creation.tg_flash == None:
+        if not group_creation.tg_flash:
             print "FAS group creation FAILED. :-("
             sys.exit(1)
         else:
@@ -247,7 +247,7 @@ if args.REQUEST_ID:
         run_command_if_allowed("git --bare init --shared=true")
 
         print "Writing 'description' file."
-        if not args.noop:
+        if not options.noop:
             with open("description", "w") as description:
                 description.write(project['description'])
 
@@ -284,7 +284,7 @@ if args.REQUEST_ID:
         run_command_if_allowed("chown -R root:%s ." % project_group)
 
         # Commit lists
-        if len(commit_lists) != 0 and not args.noop:
+        if len(commit_lists) != 0 and not options.noop:
             with open(".hg/hgrc", "w") as hgrc:
                 hgrc.write("""
 [extensions]
@@ -327,14 +327,14 @@ maxdiff = -1
         run_command_if_allowed("find -type d -exec chmod g+s {} ;")
 
         # Commit lists
-        if len(commit_lists) != 0 and not args.noop:
+        if len(commit_lists) != 0 and not options.noop:
             with open("commit-list", "w") as f:
                 f.write(','.join(commit_lists))
             create_symlink("/usr/bin/fedora-svn-commit-mail-hook",
                            "./hooks/post-commit")
 
     # Stuff that occurs after the repo itself is made.
-    if not args.noop:
+    if not options.noop:
         # Trac instance?
         if project['trac'] != 'no':
             run_command_if_allowed(
@@ -345,8 +345,8 @@ maxdiff = -1
         # If we've made it this far without dying somehow, then poke the server
         # and tell it to mark the request as completed (the FAS group will
         # exist already).
-        request = urllib2.urlopen(server + '/mark-completed?id=' + \
-                                      args.REQUEST_ID,
+        request = urllib2.urlopen(server + '/mark-completed?id=' +
+                                  options.REQUEST_ID,
                                   timeout=5)  # Give up after 5 seconds.
         response = json.loads(request.read())
         if 'error' in response:
