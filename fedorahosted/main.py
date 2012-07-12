@@ -145,7 +145,7 @@ class RequestForm(Form):
     project_pretty_name = TextField('Pretty Name',
                                     [validators.Length(min=1, max=150)])
     project_description = TextField('Short Description',
-                                    [validators.Length(min=1, max=255)])
+                                    [validators.Length(min=1, max=254)])
     project_owner = TextField('Owner FAS Username',
                               [validators.Length(min=1, max=32)])
     project_scm = SelectField('SCM',
